@@ -123,8 +123,7 @@ def get_leg_agility_landmarks(bounding_box, detector, current_frame, current_fra
 def get_leg_agility_signal(landmarks_list):
     signal = []
     for landmarks in landmarks_list:
-        [left_shoulder, right_shoulder, knee_landmark] = landmarks
-        shoulder_midpoint = (np.array(left_shoulder[:2]) + np.array(right_shoulder[:2])) / 2
+        [shoulder_midpoint, knee_landmark] = landmarks
         distance = math.dist(knee_landmark[:2], shoulder_midpoint)
         signal.append(distance)
     return signal
@@ -145,7 +144,8 @@ def get_leg_agility_display_landmarks(landmarks_list):
     display_landmarks = []
     for landmarks in landmarks_list:
         [left_shoulder, right_shoulder, knee_landmark, _, _] = landmarks
-        display_landmarks.append([left_shoulder, right_shoulder, knee_landmark])
+        shoulder_midpoint = (np.array(left_shoulder[:2]) + np.array(right_shoulder[:2])) / 2
+        display_landmarks.append([shoulder_midpoint, knee_landmark])
     return display_landmarks
 
 
@@ -168,27 +168,47 @@ def get_toe_tapping_landmarks(bounding_box, detector, current_frame_idx, current
 
     toe_idx = MP_LANDMARKS.LEFT_FOOT_INDEX if is_left else MP_LANDMARKS.RIGHT_FOOT_INDEX
 
-    knee_landmark = [landmarks[knee_idx].x * (x2 - x1), landmarks[knee_idx].y * (y2 - y1)]
+    # knee_landmark = [landmarks[knee_idx].x * (x2 - x1), landmarks[knee_idx].y * (y2 - y1)]
+
+    left_shoulder = landmarks[MP_LANDMARKS.LEFT_SHOULDER]
+    right_shoulder = landmarks[MP_LANDMARKS.RIGHT_SHOULDER]
+    shoulder_midpoint = [(left_shoulder.x+right_shoulder.x) / 2, (left_shoulder.y + right_shoulder.y) / 2]
+    shoulder_midpoint = [shoulder_midpoint[0] * (x2-x1), shoulder_midpoint[1] * (y2 - y1)]
+
+    left_hip = landmarks[MP_LANDMARKS.LEFT_HIP]
+    right_hip = landmarks[MP_LANDMARKS.RIGHT_HIP]
+    hip_midpoint = [(left_hip.x+right_hip.x) / 2, (left_hip.y + right_hip.y) / 2]
+    hip_midpoint = [hip_midpoint[0] * (x2-x1), hip_midpoint[1] * (y2 - y1)]
+
     toe_landmark = [landmarks[toe_idx].x * (x2 - x1), landmarks[toe_idx].y * (y2 - y1)]
 
-    return [knee_landmark, toe_landmark]
+    return [shoulder_midpoint, toe_landmark, hip_midpoint]
 
 
 def get_toe_tapping_signal(landmarks_list):
     signal = []
     for landmarks in landmarks_list:
-        [knee, toe] = landmarks
-        distance = math.dist(knee, toe)
+        [shoulder_midpoint, toe] = landmarks
+        distance = math.dist(shoulder_midpoint, toe)
         signal.append(distance)
     return signal
 
 
-def get_toe_tapping_nf(_):
-    return 1
+def get_toe_tapping_nf(landmarks_list):
+    values = []
+    for landmarks in landmarks_list:
+        [shoulder_midpoint, _, hip_midpoint] = landmarks
+        distance = math.dist(shoulder_midpoint, hip_midpoint)
+        values.append(distance)
+    return np.mean(values)
 
 
-def get_toe_tapping_display_landmarks(landmarks):
-    return landmarks
+def get_toe_tapping_display_landmarks(landmarks_list):
+    display_landmarks = []
+    for landmarks in landmarks_list:
+        [shoulder_midpoint, toe_landmark, _] = landmarks
+        display_landmarks.append([shoulder_midpoint, toe_landmark])
+    return display_landmarks
 
 
 def get_hand_landmarks(bounding_box, detector, current_frame_idx, current_frame, is_left):
