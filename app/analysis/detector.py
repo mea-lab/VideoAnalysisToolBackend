@@ -51,5 +51,6 @@ def mp_hand():
 def yolo_nas_pose():
     model = models.get("yolo_nas_pose_l", pretrained_weights="coco_pose")
     device = 'mps' if torch.backends.mps.is_available() else 'cpu'
+    device = 'cuda' if torch.cuda.is_available() else device
     model.to(device)
     return model
