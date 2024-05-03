@@ -253,10 +253,15 @@ def get_hand_movement_landmarks(current_frame, current_frame_idx, bounding_box, 
 
 def get_hand_movement_signal(landmarks_list):
     signal = []
+    prevDist = 0
     for landmarks in landmarks_list:
+        if len(landmarks) < 4:
+            signal.append(prevDist)
+            continue
         [index_finger, middle_finger, ring_finger, wrist] = landmarks
         distance = (math.dist(index_finger, wrist) + math.dist(middle_finger, wrist) + math.dist(ring_finger,
                                                                                                  wrist)) / 3
+        prevDist = distance
         signal.append(distance)
     return signal
 
@@ -264,6 +269,9 @@ def get_hand_movement_signal(landmarks_list):
 def get_hand_movement_nf(landmarks_list):
     values = []
     for landmarks in landmarks_list:
+        if len(landmarks) < 4:
+            values.append(0)
+            continue  # Skip this iteration if landmarks length is less than 4
         [_, middle_finger, _, wrist] = landmarks
         distance = math.dist(middle_finger, wrist)
         values.append(distance)
@@ -273,6 +281,9 @@ def get_hand_movement_nf(landmarks_list):
 def get_hand_movement_display_landmarks(landmarks_list):
     display_landmarks = []
     for landmarks in landmarks_list:
+        if len(landmarks) < 4:
+            display_landmarks.append([])
+            continue  # Skip this iteration if landmarks length is less than 4
         [index_finger, middle_finger, ring_finger, wrist] = landmarks
         display_landmarks.append([index_finger, middle_finger, ring_finger, wrist])
     return display_landmarks
@@ -299,9 +310,14 @@ def get_finger_tap_landmarks(current_frame, current_frame_idx, bounding_box, is_
 
 def get_finger_tap_signal(landmarks_list):
     signal = []
+    prev = 0
     for landmarks in landmarks_list:
+        if not landmarks:
+            signal.append(prev)
+            continue
         [thumb_finger, index_finger] = landmarks
         distance = math.dist(thumb_finger, index_finger)
+        prev = distance
         signal.append(distance)
     return signal
 

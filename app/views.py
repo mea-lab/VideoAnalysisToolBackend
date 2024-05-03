@@ -9,6 +9,7 @@ from app.analysis.YOLOTracker import YOLOTracker
 import time
 import json
 from app.leg_raise_2 import final_analysis, updatePeaksAndValleys, updateLandMarks
+import traceback
 
 
 def home(req):
@@ -86,6 +87,7 @@ def leg_analyse_video(json_data, path=None):
         return outputDict
     except Exception as e:
         print(f"Error in processing video : {e}")
+        traceback.print_exc()  # Print the stack trace of the exception
         return {'error': str(e)}
 
 

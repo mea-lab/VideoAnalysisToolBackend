@@ -8,11 +8,11 @@ from super_gradients.training import models
 
 def get_detector(task):
     if "hand movement" in str.lower(task):
-        return mp_hand(), True
+        return mp_hand(), False
     elif "leg agility" in str.lower(task):
         return yolo_nas_pose(), False
     elif "finger tap" in str.lower(task):
-        return mp_hand(), True
+        return mp_hand(), False
     elif "toe tapping" in str.lower(task):
         return test_pose(), False
 
