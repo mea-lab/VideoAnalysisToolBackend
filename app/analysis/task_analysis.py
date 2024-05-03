@@ -270,7 +270,6 @@ def get_hand_movement_nf(landmarks_list):
     values = []
     for landmarks in landmarks_list:
         if len(landmarks) < 4:
-            values.append(0)
             continue  # Skip this iteration if landmarks length is less than 4
         [_, middle_finger, _, wrist] = landmarks
         distance = math.dist(middle_finger, wrist)
