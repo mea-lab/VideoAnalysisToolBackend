@@ -1,11 +1,8 @@
 from ultralytics import YOLO
 import cv2
-import torch
 
 
 def YOLOTracker(filePath, modelPath, device='cpu'):
-    device = 'mps' if torch.backends.mps.is_available() else 'cpu'
-    device = 'cuda' if torch.cuda.is_available() else device
     model = YOLO(modelPath)
     cap = cv2.VideoCapture(filePath)
 
