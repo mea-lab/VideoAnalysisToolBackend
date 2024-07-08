@@ -1,0 +1,18 @@
+{
+    "name": "Django",
+    "type": "python",
+    "request": "launch",
+    "stopOnEntry": false,
+    "pythonPath": "${config.python.pythonPath}",
+    "program": "${workspaceRoot}/manage.py",
+    "args": [
+        "runserver",
+        "--noreload"
+    ],
+    "debugOptions": [
+        "WaitOnAbnormalExit",
+        "WaitOnNormalExit",
+        "RedirectOutput",
+        "DjangoDebugging"
+    ],
+}

@@ -1195,6 +1195,7 @@ def final_analysis(inputJson, inputVideo):
     # a dictionary
     # data = json.load(f)
     data = inputJson
+
     boundingBox = data['boundingBox']
     fps = data['fps']
     start_time = data['start_time']
