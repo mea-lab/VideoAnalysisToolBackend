@@ -10,22 +10,22 @@ import scipy.signal as signal
 
 
 def increase_bounding_box(box, video_w, video_h):
-        new_box = {}
-        new_box['x'] = int(max(0, box['x'] - box['width'] * 0.125))
-        new_box['y'] = int(max(0, box['y'] - box['height'] * 0.125))
-        new_box['width'] = int(min(video_w - new_box['x'], box['width'] * 1.25))
-        new_box['height'] = int(min(video_h - new_box['y'], box['height'] * 1.25))
+    new_box = {}
+    new_box['x'] = int(max(0, box['x'] - box['width'] * 0.125))
+    new_box['y'] = int(max(0, box['y'] - box['height'] * 0.125))
+    new_box['width'] = int(min(video_w - new_box['x'], box['width'] * 1.25))
+    new_box['height'] = int(min(video_h - new_box['y'], box['height'] * 1.25))
 
-        return new_box
+    return new_box
+
 
 def analysis(bounding_box, start_time, end_time, input_video, task_name):
     video = cv2.VideoCapture(input_video)
 
-    # #update bouding box to make it 25% larger. 
-    # video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-    # video_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    # bounding_box = increase_bounding_box(bounding_box, video_width, video_height)
-
+    # update bouding box to make it 25% larger.
+    video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    video_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    bounding_box = increase_bounding_box(bounding_box, video_width, video_height)
 
     fps = video.get(cv2.CAP_PROP_FPS)
     start_frame_idx = math.floor(fps * start_time)
@@ -70,7 +70,7 @@ def get_analysis_output(task_name, display_landmarks, normalization_factor, fps,
 
     duration = end_time - start_time
 
-    #upsample the signal to 60 FPS, the find peaks stage works best at 60 FPS
+    # upsample the signal to 60 FPS, the find peaks stage works best at 60 FPS
     fps = 60
     time_vector = np.linspace(0, duration, int(duration * fps))
 
