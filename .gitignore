@@ -12,3 +12,5 @@ app/__pycache__/__init__.cpython-39.pyc
 *.pyc
 *.pyc
 /app/__pycache__
+/app/uploads
+*.pyc
