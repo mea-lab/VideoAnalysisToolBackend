@@ -49,6 +49,7 @@ def get_output(up_sample_signal, duration, start_time):
     amplitude = []
     peakTime = []
     rmsVelocity = []
+    speed = []
     averageOpeningSpeed = []
     averageClosingSpeed = []
     cycleDuration = []
@@ -69,10 +70,10 @@ def get_output(up_sample_signal, duration, start_time):
         amplitude.append(y - f(x))
 
         # Opening Velocity
-        #rmsVelocity.append(np.sqrt(np.mean(velocity[peak['openingValleyIndex']:peak['closingValleyIndex']] ** 2)))
+        rmsVelocity.append(np.sqrt(np.mean(velocity[peak['openingValleyIndex']:peak['closingValleyIndex']] ** 2)))
 
 
-        rmsVelocity.append( (y - f(x)) / ((peak['closingValleyIndex']- peak['openingValleyIndex'])* (1 / 60)))
+        speed.append( (y - f(x)) / ((peak['closingValleyIndex']- peak['openingValleyIndex'])* (1 / 60)))
         averageOpeningSpeed.append((y - f(x)) / ((peak['peakIndex'] - peak['openingValleyIndex']) * (1 / 60)))
         averageClosingSpeed.append((y - f(x)) / ((peak['closingValleyIndex'] - peak['peakIndex']) * (1 / 60)))
         cycleDuration.append((peak['closingValleyIndex'] - peak['openingValleyIndex'])* (1 / 60))
@@ -81,6 +82,9 @@ def get_output(up_sample_signal, duration, start_time):
 
     meanAmplitude = np.mean(amplitude)
     stdAmplitude = np.std(amplitude)
+
+    meanSpeed = np.mean(speed)
+    stdSpeed = np.std(speed)
 
     meanRMSVelocity = np.mean(rmsVelocity)
     stdRMSVelocity = np.std(rmsVelocity)
@@ -110,6 +114,7 @@ def get_output(up_sample_signal, duration, start_time):
 
 
     cvAmplitude = stdAmplitude / meanAmplitude
+    cvSpeed = stdSpeed / meanSpeed
     cvCycleDuration = stdCycleDuration / meanCycleDuration
     cvRMSVelocity = stdRMSVelocity / meanRMSVelocity
     cvAverageOpeningSpeed = stdAverageOpeningSpeed / meanAverageOpeningSpeed
@@ -118,6 +123,10 @@ def get_output(up_sample_signal, duration, start_time):
     jsonFinal = {
         "linePlot": {
             "data": distance,
+            "time": line_time
+        },
+        "rawData":{
+            "data": up_sample_signal,
             "time": line_time
         },
         "peaks": {
@@ -148,8 +157,10 @@ def get_output(up_sample_signal, duration, start_time):
         "radarTable": {
             "MeanAmplitude": meanAmplitude,
             "StdAmplitude": stdAmplitude,
-            "MeanSpeed": meanRMSVelocity,
-            "StdSpeed": stdRMSVelocity,
+            "MeanSpeed": meanSpeed,
+            "StdSpeed": stdSpeed,
+            "MeanRMSVelocity": meanRMSVelocity,
+            "StdRMSVelocity": stdRMSVelocity,
             "MeanOpeningSpeed": meanAverageOpeningSpeed,
             "stdOpeningSpeed": stdAverageOpeningSpeed,
             "meanClosingSpeed": meanAverageClosingSpeed,
