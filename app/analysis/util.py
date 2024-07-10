@@ -51,6 +51,7 @@ def get_output(up_sample_signal, duration, start_time):
     rmsVelocity = []
     averageOpeningSpeed = []
     averageClosingSpeed = []
+    cycleDuration = []
 
     for idx, peak in enumerate(peaks):
         # Height measures
@@ -74,7 +75,7 @@ def get_output(up_sample_signal, duration, start_time):
         rmsVelocity.append( (y - f(x)) / ((peak['closingValleyIndex']- peak['openingValleyIndex'])* (1 / 60)))
         averageOpeningSpeed.append((y - f(x)) / ((peak['peakIndex'] - peak['openingValleyIndex']) * (1 / 60)))
         averageClosingSpeed.append((y - f(x)) / ((peak['closingValleyIndex'] - peak['peakIndex']) * (1 / 60)))
-
+        cycleDuration.append((peak['closingValleyIndex'] - peak['openingValleyIndex'])* (1 / 60))
         # timming
         peakTime.append(peak['peakIndex'] * (1 / 60))
 
@@ -88,8 +89,8 @@ def get_output(up_sample_signal, duration, start_time):
     meanAverageClosingSpeed = np.mean(averageClosingSpeed)
     stdAverageClosingSpeed = np.std(averageClosingSpeed)
 
-    meanCycleDuration = np.mean(np.diff(peakTime))
-    stdCycleDuration = np.std(np.diff(peakTime))
+    meanCycleDuration = np.mean(cycleDuration)
+    stdCycleDuration = np.std(cycleDuration)
     rangeCycleDuration = np.max(np.diff(peakTime)) - np.min(np.diff(peakTime))
     rate = len(peaks) / (peaks[-1]['closingValleyIndex'] - peaks[0]['openingValleyIndex']) / (1 / 60)
 
