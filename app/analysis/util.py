@@ -68,8 +68,10 @@ def get_output(up_sample_signal, duration, start_time):
         amplitude.append(y - f(x))
 
         # Opening Velocity
-        rmsVelocity.append(np.sqrt(np.mean(velocity[peak['openingValleyIndex']:peak['closingValleyIndex']] ** 2)))
+        #rmsVelocity.append(np.sqrt(np.mean(velocity[peak['openingValleyIndex']:peak['closingValleyIndex']] ** 2)))
 
+
+        rmsVelocity.append( (y - f(x)) / ((peak['closingValleyIndex']- peak['openingValleyIndex'])* (1 / 60)))
         averageOpeningSpeed.append((y - f(x)) / ((peak['peakIndex'] - peak['openingValleyIndex']) * (1 / 60)))
         averageClosingSpeed.append((y - f(x)) / ((peak['closingValleyIndex'] - peak['peakIndex']) * (1 / 60)))
 
@@ -91,16 +93,20 @@ def get_output(up_sample_signal, duration, start_time):
     rangeCycleDuration = np.max(np.diff(peakTime)) - np.min(np.diff(peakTime))
     rate = len(peaks) / (peaks[-1]['closingValleyIndex'] - peaks[0]['openingValleyIndex']) / (1 / 60)
 
-    earlyPeaks = peaks[:len(peaks) // 3]
-    latePeaks = peaks[-len(peaks) // 3:]
-    amplitudeDecay = np.mean(distance[:len(peaks) // 3]) / np.mean(distance[-len(peaks) // 3:])
-    velocityDecay = np.sqrt(
-        np.mean(velocity[earlyPeaks[0]['openingValleyIndex']:earlyPeaks[-1]['closingValleyIndex']] ** 2)) / np.sqrt(
-        np.mean(velocity[latePeaks[0]['openingValleyIndex']:latePeaks[-1]['closingValleyIndex']] ** 2))
-    rateDecay = (len(earlyPeaks) / (
-            (earlyPeaks[-1]['closingValleyIndex'] - earlyPeaks[0]['openingValleyIndex']) / (1 / 60))) / (
+    earlyPeaks = peaks[:len(peaks) // 2]
+    latePeaks = peaks[-len(peaks) // 2:]
+    # amplitudeDecay = np.mean(distance[:len(peaks) // 3]) / np.mean(distance[-len(peaks) // 3:])
+    # velocityDecay = np.sqrt(
+    #     np.mean(velocity[earlyPeaks[0]['openingValleyIndex']:earlyPeaks[-1]['closingValleyIndex']] ** 2)) / np.sqrt(
+    #     np.mean(velocity[latePeaks[0]['openingValleyIndex']:latePeaks[-1]['closingValleyIndex']] ** 2))
+    rateDecay = (len(earlyPeaks) / ((earlyPeaks[-1]['closingValleyIndex'] - earlyPeaks[0]['openingValleyIndex']) / (1 / 60))) / (
                         len(latePeaks) / (
                         (latePeaks[-1]['closingValleyIndex'] - latePeaks[0]['openingValleyIndex']) / (1 / 60)))
+
+    amplitudeDecay = np.array(amplitude)[:len(amplitude)//2].mean() / np.array(amplitude)[len(amplitude)//2:].mean()
+    velocityDecay = np.array(rmsVelocity)[:len(rmsVelocity)//2].mean() / np.array(rmsVelocity)[len(rmsVelocity)//2:].mean()
+
+
 
     cvAmplitude = stdAmplitude / meanAmplitude
     cvCycleDuration = stdCycleDuration / meanCycleDuration
@@ -141,12 +147,12 @@ def get_output(up_sample_signal, duration, start_time):
         "radarTable": {
             "MeanAmplitude": meanAmplitude,
             "StdAmplitude": stdAmplitude,
-            "MeanRMSVelocity": meanRMSVelocity,
-            "StdRMSVelocity": stdRMSVelocity,
-            "meanAverageOpeningSpeed": meanAverageOpeningSpeed,
-            "stdAverageOpeningSpeed": stdAverageOpeningSpeed,
-            "meanAverageClosingSpeed": meanAverageClosingSpeed,
-            "stdAverageClosingSpeed": stdAverageClosingSpeed,
+            "MeanSpeed": meanRMSVelocity,
+            "StdSpeed": stdRMSVelocity,
+            "MeanOpeningSpeed": meanAverageOpeningSpeed,
+            "stdOpeningSpeed": stdAverageOpeningSpeed,
+            "meanClosingSpeed": meanAverageClosingSpeed,
+            "stdClosingSpeed": stdAverageClosingSpeed,
             "meanCycleDuration": meanCycleDuration,
             "stdCycleDuration": stdCycleDuration,
             "rangeCycleDuration": rangeCycleDuration,
@@ -156,9 +162,9 @@ def get_output(up_sample_signal, duration, start_time):
             "rateDecay": rateDecay,
             "cvAmplitude": cvAmplitude,
             "cvCycleDuration": cvCycleDuration,
-            "cvRMSVelocity": cvRMSVelocity,
-            "cvAverageOpeningSpeed": cvAverageOpeningSpeed,
-            "cvAverageClosingSpeed": cvAverageClosingSpeed
+            "cvSpeed": cvRMSVelocity,
+            "cvOpeningSpeed": cvAverageOpeningSpeed,
+            "cvClosingSpeed": cvAverageClosingSpeed
         },
 
     }
