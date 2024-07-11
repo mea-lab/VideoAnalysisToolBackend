@@ -48,9 +48,12 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
 
         landmarks = get_essential_landmarks(current_frame, current_frame_idx, task_name, bounding_box, detector)
 
-        # if frame doesn't have essential landmarks skip
+        # if frame doesn't have essential landmarks use previous landmarks 
         if not landmarks:
-            essential_landmarks.append([])
+            if essential_landmarks[-1]:
+                essential_landmarks.append(essential_landmarks[-1])
+            else:
+                essential_landmarks.append([])
             current_frame_idx += 1
             continue
 
@@ -66,7 +69,7 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
 def get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time):
     task_signal = get_signal(display_landmarks, task_name)
     signal_of_interest = np.array(task_signal) / normalization_factor
-    signal_of_interest = filter_signal(signal_of_interest, cut_off_frequency=7.5)
+    # signal_of_interest = filter_signal(signal_of_interest, cut_off_frequency=7.5)
 
     duration = end_time - start_time
 
