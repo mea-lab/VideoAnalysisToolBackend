@@ -233,7 +233,7 @@ def get_hand_landmarks(bounding_box, detector, current_frame_idx, current_frame,
 def get_hand_movement_landmarks(current_frame, current_frame_idx, bounding_box, is_left, detector):
     hand_landmarks = get_hand_landmarks(bounding_box, detector, current_frame_idx, current_frame, is_left)
     if not hand_landmarks:
-        return []
+        return [],[]
     bounds = get_boundaries(bounding_box)
     index_finger = get_landmark_coords(hand_landmarks[MP_HAND_LANDMARKS.INDEX_FINGER_TIP], bounds)
     middle_finger = get_landmark_coords(hand_landmarks[MP_HAND_LANDMARKS.MIDDLE_FINGER_TIP], bounds)
@@ -248,7 +248,7 @@ def get_hand_movement_landmarks(current_frame, current_frame_idx, bounding_box, 
         landmarks.append(hand_landmarks[MP_HAND_LANDMARKS.RING_FINGER_TIP])
         cv2.imwrite("outputs/" + str(current_frame_idx) + ".jpg", draw_hand(current_frame[y1:y2, x1:x2, :], landmarks))
 
-    return [index_finger, middle_finger, ring_finger, wrist]
+    return [index_finger, middle_finger, ring_finger, wrist], get_all_landmarks_coord(hand_landmarks, bounds)
 
 
 def get_hand_movement_signal(landmarks_list):
@@ -291,7 +291,7 @@ def get_hand_movement_display_landmarks(landmarks_list):
 def get_finger_tap_landmarks(current_frame, current_frame_idx, bounding_box, is_left, detector):
     hand_landmarks = get_hand_landmarks(bounding_box, detector, current_frame_idx, current_frame, is_left)
     if not hand_landmarks:
-        return []
+        return [],[]
 
     bounds = get_boundaries(bounding_box)
     thumb_finger = get_landmark_coords(hand_landmarks[MP_HAND_LANDMARKS.THUMB_TIP], bounds)
@@ -304,7 +304,7 @@ def get_finger_tap_landmarks(current_frame, current_frame_idx, bounding_box, is_
         landmarks = [hand_landmarks[MP_HAND_LANDMARKS.INDEX_FINGER_TIP], hand_landmarks[MP_HAND_LANDMARKS.THUMB_TIP]]
         cv2.imwrite("outputs/" + str(current_frame_idx) + ".jpg", draw_hand(current_frame[y1:y2, x1:x2, :], landmarks))
 
-    return [thumb_finger, index_finger, middle_finger, wrist]
+    return [thumb_finger, index_finger, middle_finger, wrist], get_all_landmarks_coord(hand_landmarks, bounds)
 
 
 def get_finger_tap_signal(landmarks_list):
@@ -359,6 +359,14 @@ def get_landmark_coords(landmark, bounds):
     [x1, y1, x2, y2] = bounds
 
     return [landmark.x * (x2 - x1), landmark.y * (y2 - y1)]
+
+
+def get_all_landmarks_coord(landmark, bounds):
+    [x1, y1, x2, y2] = bounds
+    return [[item.x * (x2-x1), item.y * (y2-y1), item.z] for item in landmark]
+
+
+
 
 
 def get_boundaries(bounding_box):

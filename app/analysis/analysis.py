@@ -34,6 +34,7 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
     current_frame_idx = start_frame_idx
 
     essential_landmarks = []
+    all_landmarks = []
 
     detector, detector_update = get_detector(task_name)
 
@@ -46,27 +47,30 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
         if detector_update:
             detector, _ = get_detector(task_name)
 
-        landmarks = get_essential_landmarks(current_frame, current_frame_idx, task_name, bounding_box, detector)
+        landmarks, allLandmarks = get_essential_landmarks(current_frame, current_frame_idx, task_name, bounding_box, detector)
 
         # if frame doesn't have essential landmarks use previous landmarks 
         if not landmarks:
             if essential_landmarks[-1]:
                 essential_landmarks.append(essential_landmarks[-1])
+                all_landmarks.append(all_landmarks[-1])
             else:
                 essential_landmarks.append([])
+                all_landmarks.append([])
             current_frame_idx += 1
             continue
 
         essential_landmarks.append(landmarks)
+        all_landmarks.append(allLandmarks)
         current_frame_idx += 1
 
     # skip those landmarks which need not be displayed
     display_landmarks = get_display_landmarks(essential_landmarks, task_name)
     normalization_factor = get_normalisation_factor(essential_landmarks, task_name)
-    return get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time)
+    return get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time, all_landmarks)
 
 
-def get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time):
+def get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time, all_landmarks):
     task_signal = get_signal(display_landmarks, task_name)
     signal_of_interest = np.array(task_signal) / normalization_factor
     # signal_of_interest = filter_signal(signal_of_interest, cut_off_frequency=7.5)
@@ -81,7 +85,8 @@ def get_analysis_output(task_name, display_landmarks, normalization_factor, fps,
 
     output = get_output(up_sample_signal, duration, start_time)
 
-    output['landMarks'] = display_landmarks
+    output['landMarks'] = [all_landmarks, display_landmarks]
     output['normalization_factor'] = normalization_factor
 
     return output
+   
