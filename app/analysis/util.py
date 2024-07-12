@@ -152,7 +152,7 @@ def get_output(up_sample_signal, duration, start_time):
                        "CV cycle rms velocity",
                        "Mean cycle duration", "CV cycle duration", "Range cycle duration", "Amplitude decay",
                        "Velocity decay"],
-            "velocity": velocity
+            # "velocity": velocity
         },
         "radarTable": {
             "MeanAmplitude": meanAmplitude,

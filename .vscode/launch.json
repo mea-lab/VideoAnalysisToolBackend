@@ -7,7 +7,7 @@
     "program": "${workspaceRoot}/manage.py",
     "args": [
         "runserver",
-        "--noreload"
+
     ],
     "debugOptions": [
         "WaitOnAbnormalExit",
