@@ -51,12 +51,13 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
 
         # if frame doesn't have essential landmarks use previous landmarks 
         if not landmarks:
-            if essential_landmarks[-1]:
+            try:
                 essential_landmarks.append(essential_landmarks[-1])
                 all_landmarks.append(all_landmarks[-1])
-            else:
+            except:
                 essential_landmarks.append([])
                 all_landmarks.append([])
+                
             current_frame_idx += 1
             continue
 
