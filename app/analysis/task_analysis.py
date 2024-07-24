@@ -117,7 +117,9 @@ def get_leg_agility_landmarks(bounding_box, detector, current_frame, current_fra
 
     # cv2.imwrite("outputs/" + str(current_frame_idx) + ".jpg", draw_hand(roi, [knee_landmark], [x1, y1, x2, y2]))
 
-    return [left_shoulder, right_shoulder, knee_landmark, left_hip, right_hip]
+    #return an empty list in addition to selected landmarks
+    #todo -> return all landmarks   
+    return [left_shoulder, right_shoulder, knee_landmark, left_hip, right_hip], get_all_landmarks_coord_YOLONAS(landmarks)
 
 
 def get_leg_agility_signal(landmarks_list):
@@ -182,7 +184,8 @@ def get_toe_tapping_landmarks(bounding_box, detector, current_frame_idx, current
 
     toe_landmark = [landmarks[toe_idx].x * (x2 - x1), landmarks[toe_idx].y * (y2 - y1)]
 
-    return [shoulder_midpoint, toe_landmark, hip_midpoint]
+    #return selected landmarks, all landmarks
+    return [shoulder_midpoint, toe_landmark, hip_midpoint], get_all_landmarks_coord(landmarks, get_boundaries(bounding_box))
 
 
 def get_toe_tapping_signal(landmarks_list):
@@ -366,7 +369,8 @@ def get_all_landmarks_coord(landmark, bounds):
     return [[item.x * (x2-x1), item.y * (y2-y1), item.z] for item in landmark]
 
 
-
+def get_all_landmarks_coord_YOLONAS(landmark):
+    return [[item[0] , item[1]] for item in landmark]
 
 
 def get_boundaries(bounding_box):
