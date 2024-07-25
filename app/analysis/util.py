@@ -174,7 +174,7 @@ def get_output(up_sample_signal, duration, start_time):
             "rateDecay": rateDecay,
             "cvAmplitude": cvAmplitude,
             "cvCycleDuration": cvCycleDuration,
-            "cvSpeed": cvRMSVelocity,
+            "cvSpeed": cvSpeed,
             "cvOpeningSpeed": cvAverageOpeningSpeed,
             "cvClosingSpeed": cvAverageClosingSpeed
         },
