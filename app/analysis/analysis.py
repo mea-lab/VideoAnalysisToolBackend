@@ -86,7 +86,8 @@ def get_analysis_output(task_name, display_landmarks, normalization_factor, fps,
 
     output = get_output(up_sample_signal, duration, start_time)
 
-    output['landMarks'] = [all_landmarks, display_landmarks]
+    output['landMarks'] = display_landmarks
+    output['allLandMarks'] = all_landmarks
     output['normalization_factor'] = normalization_factor
 
     return output
