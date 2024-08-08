@@ -52,7 +52,7 @@ def get_output(up_sample_signal, duration, start_time):
     speed = []
     averageOpeningSpeed = []
     averageClosingSpeed = []
-    cycleDuration = []
+    cycleDuration = [] 
 
     for idx, peak in enumerate(peaks):
         # Height measures
