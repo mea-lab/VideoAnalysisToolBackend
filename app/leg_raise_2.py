@@ -809,7 +809,6 @@ def updatePeaksAndValleys(inputJson):
     valleysStartTime =  inputJson['valleys_StartTime']
     valleysEndData =  inputJson['valleys_EndData']
     valleysEndTime =  inputJson['valleys_EndTime']
-    velocity =  inputJson['_velocity']
 
     # Sort valleysStartTime and get the permutation indices
     sorted_indices = sorted(range(len(valleysStartTime)), key=lambda k: valleysStartTime[k])
