@@ -809,7 +809,10 @@ def updatePeaksAndValleys(inputJson):
     valleysStartTime =  inputJson['valleys_StartTime']
     valleysEndData =  inputJson['valleys_EndData']
     valleysEndTime =  inputJson['valleys_EndTime']
+    velocityData = np.asarray(inputJson['velocity_Data'])
+    velocityTime = np.asarray(inputJson['velocity_Time'])
 
+ 
     # Sort valleysStartTime and get the permutation indices
     sorted_indices = sorted(range(len(valleysStartTime)), key=lambda k: valleysStartTime[k])
 
@@ -849,11 +852,20 @@ def updatePeaksAndValleys(inputJson):
     valleysStartTime = valleysStartTime_sorted
     valleysStartData = valleysStartData_sorted
 
+    # amplitude = []
+    # peakTime = []
+    # rmsVelocity = []
+    # averageOpeningSpeed = []
+    # averageClosingSpeed = []
+
+
     amplitude = []
     peakTime = []
     rmsVelocity = []
+    speed = []
     averageOpeningSpeed = []
     averageClosingSpeed = []
+    cycleDuration = []
 
     for idx, item in enumerate(peaksData):
         # Height measures
@@ -870,52 +882,110 @@ def updatePeaksAndValleys(inputJson):
 
         amplitude.append(y - f(x))
 
-        # Opening Velocity
-        # rmsVelocity.append(np.sqrt(np.mean(velocity[valleysStartTime[idx]:valleysEndTime[idx]] ** 2)))
+        # Velocity
 
-        averageOpeningSpeed.append((y - f(x)) / ((peaksTime[idx] - valleysStartTime[idx]) * (1 / 60)))
-        averageClosingSpeed.append((y - f(x)) / ((valleysEndTime[idx] - peaksTime[idx]) * (1 / 60)))
+        idxStart = (np.abs(velocityTime - x1)).argmin()
+        idxEnd = (np.abs(velocityTime - x2)).argmin()
+        rmsVelocity.append(np.sqrt(np.mean(velocityData[idxStart:idxEnd] ** 2)))
+
+        speed.append((y - f(x)) / ((valleysEndTime[idx] - valleysStartTime[idx])))
+        averageOpeningSpeed.append((y - f(x)) / ((peaksTime[idx] - valleysStartTime[idx])))
+        averageClosingSpeed.append((y - f(x)) / ((valleysEndTime[idx] - peaksTime[idx])))
+        cycleDuration.append((valleysEndTime[idx] - valleysStartTime[idx]))
 
         # timming
-        peakTime.append(peaksTime[idx] * (1 / 60))
+        peakTime.append(peaksTime[idx] )
 
     meanAmplitude = np.mean(amplitude)
     stdAmplitude = np.std(amplitude)
 
-    # meanRMSVelocity = np.mean(rmsVelocity)
-    # stdRMSVelocity = np.std(rmsVelocity)
+    meanSpeed = np.mean(speed)
+    stdSpeed = np.std(speed)
+
+    meanRMSVelocity = np.mean(rmsVelocity)
+    stdRMSVelocity = np.std(rmsVelocity)
     meanAverageOpeningSpeed = np.mean(averageOpeningSpeed)
     stdAverageOpeningSpeed = np.std(averageOpeningSpeed)
     meanAverageClosingSpeed = np.mean(averageClosingSpeed)
     stdAverageClosingSpeed = np.std(averageClosingSpeed)
 
-    meanCycleDuration = np.mean(np.diff(peakTime))
-    stdCycleDuration = np.std(np.diff(peakTime))
+
+    meanCycleDuration = np.mean(cycleDuration)
+    stdCycleDuration = np.std(cycleDuration)
     rangeCycleDuration = np.max(np.diff(peakTime)) - np.min(np.diff(peakTime))
     rate = len(valleysEndTime) / (valleysEndTime[-1] - valleysStartTime[0])
 
     cvAmplitude = stdAmplitude / meanAmplitude
+    cvSpeed = stdSpeed / meanSpeed
     cvCycleDuration = stdCycleDuration / meanCycleDuration
-    # cvRMSVelocity = stdRMSVelocity / meanRMSVelocity
+    cvRMSVelocity = stdRMSVelocity / meanRMSVelocity
     cvAverageOpeningSpeed = stdAverageOpeningSpeed / meanAverageOpeningSpeed
     cvAverageClosingSpeed = stdAverageClosingSpeed / meanAverageClosingSpeed
+
+
+    numPeaksHalf = len(peaksData)//2
+    rateDecay = (numPeaksHalf / (valleysEndTime[numPeaksHalf] - valleysStartTime[0])) / (numPeaksHalf / (valleysEndTime[-1] - valleysStartTime[numPeaksHalf]))
+
+
+    amplitudeDecay = np.array(amplitude)[:len(amplitude)//2].mean() / np.array(amplitude)[len(amplitude)//2:].mean()
+    # velocityDecay = np.array(rmsVelocity)[:len(rmsVelocity)//2].mean() / np.array(rmsVelocity)[len(rmsVelocity)//2:].mean() #legacy changed to speed on 19/8/24
+    velocityDecay = np.array(speed)[:len(speed)//2].mean() / np.array(speed)[len(speed)//2:].mean()
+
+
+    # earlyPeaks = peaks[:len(peaks) // 2]
+    # latePeaks = peaks[-len(peaks) // 2:]
+
+    # rateDecay = (len(earlyPeaks) / ((earlyPeaks[-1]['closingValleyIndex'] - earlyPeaks[0]['openingValleyIndex']) / (1 / 60))) / (
+    #                     len(latePeaks) / (
+    #                     (latePeaks[-1]['closingValleyIndex'] - latePeaks[0]['openingValleyIndex']) / (1 / 60)))
+
+    # amplitudeDecay = np.array(amplitude)[:len(amplitude)//2].mean() / np.array(amplitude)[len(amplitude)//2:].mean()
+    # velocityDecay = np.array(rmsVelocity)[:len(rmsVelocity)//2].mean() / np.array(rmsVelocity)[len(rmsVelocity)//2:].mean()
+
 
     radarTable = {
             "MeanAmplitude": meanAmplitude,
             "StdAmplitude": stdAmplitude,
-            "meanAverageOpeningSpeed": meanAverageOpeningSpeed,
-            "stdAverageOpeningSpeed": stdAverageOpeningSpeed,
-            "meanAverageClosingSpeed": meanAverageClosingSpeed,
-            "stdAverageClosingSpeed": stdAverageClosingSpeed,
+            "MeanSpeed": meanSpeed,
+            "StdSpeed": stdSpeed,
+            "MeanRMSVelocity": meanRMSVelocity,
+            "StdRMSVelocity": stdRMSVelocity,
+            "MeanOpeningSpeed": meanAverageOpeningSpeed,
+            "stdOpeningSpeed": stdAverageOpeningSpeed,
+            "meanClosingSpeed": meanAverageClosingSpeed,
+            "stdClosingSpeed": stdAverageClosingSpeed,
             "meanCycleDuration": meanCycleDuration,
             "stdCycleDuration": stdCycleDuration,
             "rangeCycleDuration": rangeCycleDuration,
             "rate": rate,
+            "amplitudeDecay": amplitudeDecay,
+            "velocityDecay": velocityDecay,
+            "rateDecay": rateDecay,
             "cvAmplitude": cvAmplitude,
             "cvCycleDuration": cvCycleDuration,
-            "cvAverageOpeningSpeed": cvAverageOpeningSpeed,
-            "cvAverageClosingSpeed": cvAverageClosingSpeed
+            "cvSpeed": cvSpeed,
+            "cvRMSVelocity" : cvRMSVelocity,
+            "cvOpeningSpeed": cvAverageOpeningSpeed,
+            "cvClosingSpeed": cvAverageClosingSpeed
         }
+
+
+    # radarTable = {
+    #         "MeanAmplitude": meanAmplitude,
+    #         "StdAmplitude": stdAmplitude,
+    #         "meanAverageOpeningSpeed": meanAverageOpeningSpeed,
+    #         "stdAverageOpeningSpeed": stdAverageOpeningSpeed,
+    #         "meanAverageClosingSpeed": meanAverageClosingSpeed,
+    #         "stdAverageClosingSpeed": stdAverageClosingSpeed,
+    #         "meanCycleDuration": meanCycleDuration,
+    #         "stdCycleDuration": stdCycleDuration,
+    #         "rangeCycleDuration": rangeCycleDuration,
+    #         "rate": rate,
+    #         "cvAmplitude": cvAmplitude,
+    #         "cvCycleDuration": cvCycleDuration,
+    #         "cvAverageOpeningSpeed": cvAverageOpeningSpeed,
+    #         "cvAverageClosingSpeed": cvAverageClosingSpeed
+    #     }
     
     # "cvRMSVelocity": cvRMSVelocity,
     # "MeanRMSVelocity": meanRMSVelocity,

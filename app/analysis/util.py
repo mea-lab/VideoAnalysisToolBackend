@@ -1,13 +1,12 @@
 import scipy.signal as signal
 import scipy.interpolate as interpolate
 import numpy as np
-from app.analysis.finderPeaksSignal import peakFinder
-
-
+from app.analysis.finderPeaksSignal import peakFinder 
+ 
 def filter_signal(raw_signal, fs=25, cut_off_frequency=5):
     b, a = signal.butter(2, cut_off_frequency, fs=fs, btype='low', analog=False)
     return signal.filtfilt(b, a, raw_signal)
-
+ 
 
 def get_output(up_sample_signal, duration, start_time):
     distance, velocity, peaks, indexPositiveVelocity, indexNegativeVelocity = peakFinder(up_sample_signal, fs=60,
@@ -109,8 +108,8 @@ def get_output(up_sample_signal, duration, start_time):
                         (latePeaks[-1]['closingValleyIndex'] - latePeaks[0]['openingValleyIndex']) / (1 / 60)))
 
     amplitudeDecay = np.array(amplitude)[:len(amplitude)//2].mean() / np.array(amplitude)[len(amplitude)//2:].mean()
-    velocityDecay = np.array(rmsVelocity)[:len(rmsVelocity)//2].mean() / np.array(rmsVelocity)[len(rmsVelocity)//2:].mean()
-
+    # velocityDecay = np.array(rmsVelocity)[:len(rmsVelocity)//2].mean() / np.array(rmsVelocity)[len(rmsVelocity)//2:].mean() #legacy changed to speed on 19/8/24
+    velocityDecay = np.array(speed)[:len(speed)//2].mean() / np.array(speed)[len(speed)//2:].mean()
 
 
     cvAmplitude = stdAmplitude / meanAmplitude
@@ -119,10 +118,15 @@ def get_output(up_sample_signal, duration, start_time):
     cvRMSVelocity = stdRMSVelocity / meanRMSVelocity
     cvAverageOpeningSpeed = stdAverageOpeningSpeed / meanAverageOpeningSpeed
     cvAverageClosingSpeed = stdAverageClosingSpeed / meanAverageClosingSpeed
-
+ 
     jsonFinal = {
         "linePlot": {
             "data": distance,
+            "time": line_time
+        },
+        "velocityPlot":
+        {
+            "data": velocity,
             "time": line_time
         },
         "rawData":{
