@@ -892,7 +892,7 @@ def updatePeaksAndValleys(inputJson):
     meanCycleDuration = np.mean(np.diff(peakTime))
     stdCycleDuration = np.std(np.diff(peakTime))
     rangeCycleDuration = np.max(np.diff(peakTime)) - np.min(np.diff(peakTime))
-    rate = len(peaksTime) / (valleysEndTime[0] - valleysStartTime[0]) / (1 / 60)
+    rate = len(valleysEndTime) / (valleysEndTime[-1] - valleysStartTime[0]) 
 
     cvAmplitude = stdAmplitude / meanAmplitude
     cvCycleDuration = stdCycleDuration / meanCycleDuration
