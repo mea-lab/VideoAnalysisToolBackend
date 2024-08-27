@@ -4,5 +4,7 @@
 /app/migrations
 /.idea
 *.pyc
-/app/uploads
+/app/uploads/*
+!/app/uploads/.gitkeep
+
 
