@@ -7,6 +7,7 @@ def write_output_to_file(output, file_path) :
         json.dump(output, outfile)
 
 start_time = time.time()
+print(start_time)
 ouputDict = YOLOTracker("rigidity_gaby.mp4",'yolov8n.pt','')
 print("--- %s seconds ---" % (time.time() - start_time))
 
