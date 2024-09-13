@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    container_name: django-container1
+    container_name: django-container
     image: videoanalysistoolbackend
     ports:
       - "8000:8000"
