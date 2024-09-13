@@ -1,16 +1,10 @@
 
 /venv
-/app/__pycache__
-/app/__pycache__
-/app/analysis/__pycache__
+**/__pycache__/
 /app/migrations
-/backend/__pycache__
-/app/analysis/constants/__pycache__
-/app/__pycache__
 /.idea
-app/__pycache__/__init__.cpython-39.pyc
 *.pyc
-*.pyc
-/app/__pycache__
-/app/uploads
-*.pyc
+/app/uploads/*
+!/app/uploads/.gitkeep
+
+

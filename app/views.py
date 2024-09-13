@@ -11,12 +11,6 @@ import json
 from app.leg_raise_2 import final_analysis, updatePeaksAndValleys, updateLandMarks
 import traceback
 
-
-def home(req):
-    return render(req, "index.html")
-    # return HttpResponse("<h1>Hello world!</h1>")
-
-
 def analyse_video(path=None):
     if path is None:
         return 0, 0
