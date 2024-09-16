@@ -6,5 +6,8 @@
 *.pyc
 /app/uploads/*
 !/app/uploads/.gitkeep
+build/
+dist/
+/.DS_Store
 
 
