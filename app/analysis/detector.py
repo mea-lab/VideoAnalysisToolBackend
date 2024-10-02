@@ -4,6 +4,7 @@ from mediapipe.tasks.python import vision
 # yolo nas
 import torch
 from super_gradients.training import models
+import os
 
 
 def get_detector(task):
@@ -20,7 +21,8 @@ def get_detector(task):
 # mediapipe pose detector
 def mp_pose():
     VISION_RUNNING_MODE = mp.tasks.vision.RunningMode
-    base_options = python.BaseOptions(model_asset_path='app/models/pose_landmarker_heavy.task')
+    current_dir = os.path.dirname(__file__)
+    base_options = python.BaseOptions(model_asset_path = os.path.join(current_dir, 'models/pose_landmarker_heavy.task'))
     options = vision.PoseLandmarkerOptions(
         base_options=base_options,
         output_segmentation_masks=False,
@@ -37,7 +39,8 @@ def test_pose():
 # mediapipe hand detector
 def mp_hand():
     VISION_RUNNING_MODE = mp.tasks.vision.RunningMode
-    base_options = python.BaseOptions(model_asset_path='app/models/hand_landmarker.task')
+    current_dir = os.path.dirname(__file__)
+    base_options = python.BaseOptions(model_asset_path = os.path.join(current_dir, 'models/hand_landmarker.task'))
     options = vision.HandLandmarkerOptions(
         base_options=base_options,
         num_hands=2,

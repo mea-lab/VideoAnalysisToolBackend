@@ -2,9 +2,16 @@ from ultralytics import YOLO
 import cv2
 import torch
 
+#ask pytorch to fallback to CPU if the function is not implemented in MPS
+import os
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"]="1"
+
 
 def YOLOTracker(filePath, modelPath, device='cpu'):
+    
     device = 'cuda' if torch.cuda.is_available() else device
+    device = 'mps' if torch.backends.mps.is_available() else device
+
     model = YOLO(modelPath)
     cap = cv2.VideoCapture(filePath)
 
