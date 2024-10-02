@@ -1096,7 +1096,8 @@ def leg_raise_yolo(fps, bounding_box, start_time, end_time, input_video, is_left
         # ax.plot(item['openingValleyIndex'], distance[item['openingValleyIndex']], 'ro', alpha=0.75)
         # ax.plot(item['peakIndex'], distance[item['peakIndex']], 'go', alpha=0.75)
         # ax.plot(item['closingValleyIndex'], distance[item['closingValleyIndex']], 'bo', alpha=0.75)
-        # line_valleys.append(prevValley+item['openingValleyIndex'])
+        # line_valleys.append(prevValley+item
+        # ['openingValleyIndex'])
 
         line_peaks.append(distance[item['peakIndex']])
         line_peaks_time.append((item['peakIndex'] / sizeOfDist) * duration + start_time)

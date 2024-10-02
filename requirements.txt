@@ -148,7 +148,7 @@ treelib==1.6.1
 typing_extensions==4.10.0
 tzdata==2024.1
 tzlocal==5.2
-ultralytics==8.0.209
+ultralytics==8.3.2
 uritools==4.0.2
 urllib3==1.26.18
 uvicorn==0.30.6

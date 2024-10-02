@@ -47,7 +47,9 @@ def analyse_video_frames(path=None):
     try:
         print("analysis started")
         start_time = time.time()
-        ouputDict = YOLOTracker(path, 'yolov8n.pt', '')
+        current_dir = os.path.dirname(__file__)
+        pathtomodel = os.path.join( current_dir, 'models/yolov8n.pt')
+        ouputDict = YOLOTracker(path, pathtomodel, '')
         print("Analysis Done")
         print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -62,7 +64,6 @@ def update_plot_data(json_data):
         print("updating plot started")
         start_time = time.time()
         outputDict = updatePeaksAndValleys(json_data)
-        # ouputDict = YOLOTracker(path, 'yolov8n.pt', '')
         print("updating the plot is Done")
         print("--- %s seconds ---" % (time.time() - start_time))
 
@@ -80,7 +81,6 @@ def leg_analyse_video(json_data, path=None):
         print("analysis started")
         start_time = time.time()
         outputDict = final_analysis(json_data, path)
-        # ouputDict = YOLOTracker(path, 'yolov8n.pt', '')
         print("Analysis Done")
         print("--- %s seconds ---" % (time.time() - start_time))
 
