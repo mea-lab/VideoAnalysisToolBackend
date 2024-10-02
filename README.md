@@ -1,17 +1,40 @@
-# PDTracker_Backend
+# VisionMD_Backend
 
-To setup the project locally, install python3 version 3.10 
-and create a vitual environment using the following command:
+## Introduction
+This repository contains the BackEnd of VisionMD software, a tool used for quantificaition of motor symtoms from videos. 
+
+To run this repository, you also need to download the [FrontEnd](https://github.com/mea-lab/VideoAnalysisToolFrontend), which is also available in github. 
+
+Running the BackEnd and front end toguether allows you to modify both components to fit your needs. 
+
+## Stand alone application
+
+If you only want to run the softare without modifying it, please visit the [dev branch](https://github.com/mea-lab/VideoAnalysisToolBackend/tree/dev). Instructions to download and run a stand alone application are avaliable there. 
+
+The stand alone application is only available for Window and MacOS. 
+
+## Set up the project locally
+
+To run the project locally, clone the current repository and follow the next steps. 
+
+<details>
+<summary>Windows / MacOS</summary>
+
+To setup the project locally, you need to install anaconda, which can be obtained from [here](https://www.anaconda.com/download/success). Please make sure to install the correct version for your OS. 
+
+After succesfully installing anaconda, open a new terminal window in the folder containing the repository andcreate a new virtual environment with Python 3.10
 
 ```bash
-python3.10 -m venv venv
+conda create --name VisionMD python=3.10
 ```
 
 Activate the virtual environment using the following command:
 
 ```bash
-source venv/bin/activate
+conda activate VisionMD
 ```
+
+and install the requiered packages
 
 ```bash
 pip install -r requirements.txt
@@ -25,7 +48,49 @@ python manage.py runserver
 
 Server runs on port 8080 
 
-Now go to VideoAnalysisToolFrontend and run `npm start` to start UI
+To terminate the server, press ```Control``` + ```C```
+
+</details>
+
+<details>
+<summary>Linux</summary>
+
+To setup the project locally, you need to install Python3 before proceeding. 
+
+
+Open a new terminal window in the folder containing the repository and create a vitual environment using the following command:
+
+```bash
+python3.10 -m venv VisionMD
+```
+
+Activate the virtual environment using the following command:
+
+```bash
+source VisionMD/bin/activate
+```
+
+and install the requiered packages
+
+```bash
+pip install -r requirements.txt
+```
+
+Start the server using the following command:
+
+```bash
+python manage.py runserver
+```
+
+Server runs on port 8080 
+
+
+To terminate the server, press ```Control``` + ```C```
+</details>
+
+
+
+Now go to download the [FrontEnd](https://github.com/mea-lab/VideoAnalysisToolFrontend) and follow the step described there to run the local sever. 
 
 
 # Running the Backend with Docker Compose
