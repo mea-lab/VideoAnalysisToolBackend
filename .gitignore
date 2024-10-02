@@ -6,5 +6,6 @@
 *.pyc
 /app/uploads/*
 !/app/uploads/.gitkeep
+/app/analysis/models/yolo_nas_pose_l_coco_pose.pth
 
 
