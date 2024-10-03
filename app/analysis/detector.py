@@ -5,6 +5,7 @@ from mediapipe.tasks.python import vision
 import torch
 from super_gradients.training import models
 import os
+import urllib.request
 
 
 def get_detector(task):
@@ -52,7 +53,16 @@ def mp_hand():
 
 # yolo nas pose detector
 def yolo_nas_pose():
-    model = models.get("yolo_nas_pose_l", pretrained_weights="coco_pose")
+
+    current_dir = os.path.dirname(__file__)
+    modelpath = os.path.join(current_dir, 'models/yolo_nas_pose_l_coco_pose.pth')
+    if not os.path.isfile(modelpath):
+        urllib.request.urlretrieve("https://sg-hub-nv.s3.amazonaws.com/models/yolo_nas_pose_l_coco_pose.pth", modelpath)
+    #load model from web --- NOT IN USE 
+    # model = models.get("yolo_nas_pose_l", pretrained_weights="coco_pose")
+    #load model from local --- IN USE
+    model = models.get("yolo_nas_pose_l", pretrained_weights='coco_pose',checkpoint_path=modelpath)
+    # model.load_state_dict(torch.load(modelpath))
     device = 'mps' if torch.backends.mps.is_available() else 'cpu'
     device = 'cuda' if torch.cuda.is_available() else device
     model.to(device)
