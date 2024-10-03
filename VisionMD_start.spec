@@ -4,11 +4,11 @@ from PyInstaller.utils.hooks import collect_data_files
 block_cipher = None
 
 a = Analysis(
-    ['VideoAnalysisToolBackend-dev/start.py'],
+    ['start.py'],
     pathex=[],
     binaries=[],
-    datas=[('VideoAnalysisToolBackend-dev/templates', 'templates'), ('VideoAnalysisToolBackend-dev/static', 'static'),
-        ('VideoAnalysisToolBackend-dev/backend', 'backend'), ('VideoAnalysisToolBackend-dev/app/models', 'app/models'), ('VideoAnalysisToolBackend-dev/app/analysis/models','app/analysis/models')] + collect_data_files('ultralytics') + collect_data_files('super-gradients'),
+    datas=[('templates', 'templates'), ('static', 'static'),
+        ('backend', 'backend'), ('app/models', 'app/models'), ('app/analysis/models','app/analysis/models')] + collect_data_files('ultralytics') + collect_data_files('super-gradients'),
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
@@ -36,6 +36,7 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='logoVisionMD.ico'
 )
 coll = COLLECT(
     exe,
@@ -44,5 +45,5 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='VisionMDTool',
+    name='VisionMD',
 )
