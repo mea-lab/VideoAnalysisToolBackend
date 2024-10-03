@@ -22,27 +22,34 @@ def YOLOTracker(filePath, modelPath, device='cpu'):
     while cap.isOpened():
         # Read a frame from the video
         success, frame = cap.read()
+
         if success:
-            # Run YOLOv8 tracking on the frame, persisting tracks between frames
-            results = model.track(frame, persist=True, classes=[0], verbose=False, device=device)
-            data = []
+            if frameNumber%10 == 0 : #only do it every 10 frames
 
-            if len(results) > 0 and results[0].boxes is not None and results[0].boxes.id is not None:
-                ind = results[0].boxes.id.cpu().numpy().astype(int)
-                box = results[0].boxes.xyxy.cpu().numpy().astype(int)
-                for i in range(len(ind)):
-                    temp = dict()
-                    temp['id'] = int(ind[i])
-                    temp['x'] = int(box[i][0])
-                    temp['y'] = int(box[i][1])
-                    temp['width'] = int(box[i][2] - box[i][0])
-                    temp['height'] = int(box[i][3] - box[i][1])
-                    temp['Subject'] = False
-                    data.append(temp)
+                # Run YOLOv8 tracking on the frame, persisting tracks between frames
+                results = model.track(frame, persist=True, classes=[0], verbose=False, device=device)
+                data = []
 
-            frameResults = {'frameNumber': frameNumber, 'data': data}
-            boundingBoxes.append(frameResults)
-            # print(frameResults)
+                if len(results) > 0 and results[0].boxes is not None and results[0].boxes.id is not None:
+                    ind = results[0].boxes.id.cpu().numpy().astype(int)
+                    box = results[0].boxes.xyxy.cpu().numpy().astype(int)
+                    for i in range(len(ind)):
+                        temp = dict()
+                        temp['id'] = int(ind[i])
+                        temp['x'] = int(box[i][0])
+                        temp['y'] = int(box[i][1])
+                        temp['width'] = int(box[i][2] - box[i][0])
+                        temp['height'] = int(box[i][3] - box[i][1])
+                        temp['Subject'] = False
+                        data.append(temp)
+
+                frameResults = {'frameNumber': frameNumber, 'data': data}
+                boundingBoxes.append(frameResults)
+                # print(frameResults)
+
+            else:
+                frameResults = {'frameNumber': frameNumber, 'data': data}
+                boundingBoxes.append(frameResults)
 
         else:
             # Break the loop if the end of the video is reached
