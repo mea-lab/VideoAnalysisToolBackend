@@ -183,10 +183,11 @@ def get_toe_tapping_landmarks(bounding_box, detector, current_frame_idx, current
     hip_midpoint = [hip_midpoint[0] * (x2-x1), hip_midpoint[1] * (y2 - y1)]
 
     toe_landmark = [landmarks[toe_idx].x * (x2 - x1), landmarks[toe_idx].y * (y2 - y1)]
+    kee_landmark = [landmarks[knee_idx].x * (x2 - x1), landmarks[knee_idx].y * (y2 - y1)]
 
     #return selected landmarks, all landmarks
     return [shoulder_midpoint, toe_landmark, hip_midpoint], get_all_landmarks_coord(landmarks, get_boundaries(bounding_box))
-
+    # return [kee_landmark, toe_landmark, hip_midpoint], get_all_landmarks_coord(landmarks, get_boundaries(bounding_box))
 
 def get_toe_tapping_signal(landmarks_list):
     signal = []
