@@ -340,7 +340,7 @@ def peakFinder(rawSignal, fs=30, minDistance=5, cutOffFrequency=5, prct=0.125):
     indexPositiveVelocity = []
     indexNegativeVelocity = []
 
-    b, a = signal.butter(2, cutOffFrequency, fs=fs, btype='low', analog=False)
+    b, a = signal.butter(2, cutOffFrequency, fs=fs, btype='lowpass', analog=False)
 
     distance = signal.filtfilt(b, a, rawSignal)  # signal.savgol_filter(rawDistance[0], 5, 3, deriv=0)
     velocity = signal.savgol_filter(distance, 5, 3, deriv=1) / (1 / fs)
