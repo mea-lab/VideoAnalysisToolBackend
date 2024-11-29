@@ -8,10 +8,6 @@ def filter_signal(raw_signal, fs=25, cut_off_frequency=5):
     return signal.filtfilt(b, a, raw_signal)
  
 
-def filter_signal_bandpass(raw_signal, fs=25, cut_off_frequency_low=0.5, cut_off_frequency_high=10):
-    b, a = signal.butter(2, [cut_off_frequency_low, cut_off_frequency_high], fs=fs, btype='bandpass', analog=False)
-    return signal.filtfilt(b, a, raw_signal)
-
 def get_output(up_sample_signal, duration, start_time):
     distance, velocity, peaks, indexPositiveVelocity, indexNegativeVelocity = peakFinder(up_sample_signal, fs=60,
                                                                                          minDistance=3,
