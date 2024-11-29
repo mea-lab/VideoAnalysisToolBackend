@@ -2,9 +2,9 @@ import math
 
 import numpy as np
 import cv2
-from app.analysis.util import filter_signal, get_output
+from app.analysis.util import filter_signal, get_output, filter_signal_bandpass
 from app.analysis.detector import get_detector
-from app.analysis.task_analysis import get_essential_landmarks, get_signal, get_normalisation_factor, \
+from app.analysis.task_analysis import get_essential_landmarks, get_signal, get_normalization_factor, \
     get_display_landmarks
 import scipy.signal as signal
 
@@ -47,7 +47,7 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
         if detector_update:
             detector, _ = get_detector(task_name)
 
-        landmarks, allLandmarks = get_essential_landmarks(current_frame, current_frame_idx, task_name, bounding_box, detector)
+        landmarks, allLandmarks = get_essential_landmarks(current_frame, current_frame_idx, task_name, bounding_box, detector, fps)
 
         # if frame doesn't have essential landmarks use previous landmarks 
         if not landmarks:
@@ -65,9 +65,11 @@ def analysis(bounding_box, start_time, end_time, input_video, task_name):
         all_landmarks.append(allLandmarks)
         current_frame_idx += 1
 
+
+
     # skip those landmarks which need not be displayed
     display_landmarks = get_display_landmarks(essential_landmarks, task_name)
-    normalization_factor = get_normalisation_factor(essential_landmarks, task_name)
+    normalization_factor = get_normalization_factor(essential_landmarks, task_name)
     return get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time, all_landmarks)
 
 
@@ -84,7 +86,9 @@ def get_analysis_output(task_name, display_landmarks, normalization_factor, fps,
 
     up_sample_signal = signal.resample(signal_of_interest, len(time_vector))
 
+    up_sample_signal = up_sample_signal
     output = get_output(up_sample_signal, duration, start_time)
+
 
     output['landMarks'] = display_landmarks
     output['allLandMarks'] = all_landmarks
