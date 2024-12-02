@@ -166,9 +166,14 @@ def get_leg_agility_signal(landmarks_list):
     for landmarks in landmarks_list:
         [shoulder_midpoint, knee_landmark] = landmarks
         # distance = math.dist(knee_landmark[:2], shoulder_midpoint)
-        distance = knee_landmark[1] - shoulder_midpoint[1]
+        # distance = knee_landmark[1] - shoulder_midpoint[1]
+        distance = shoulder_midpoint[1] - knee_landmark[1]
         signal.append(distance)
-    return signal
+
+    # signal = np.array(signal)
+    # signal = -(signal-np.mean(signal)) + np.mean(signal)
+    signal = signal + np.abs(np.min(signal))
+    return list(signal)
 
 
 def get_leg_agility_nf(landmarks_list):
@@ -276,9 +281,11 @@ def get_toe_tapping_signal(landmarks_list):
     for landmarks in landmarks_list:
         [shoulder_midpoint_position, toe] = landmarks
         # distance = math.dist(shoulder_midpoint_position, toe)
-        distance = toe[1] - shoulder_midpoint_position[1]
+        # distance = toe[1] - shoulder_midpoint_position[1]
+        distance = shoulder_midpoint_position[1] - toe[1] 
         signal.append(distance)
-    return signal   
+    signal = signal + np.abs(np.min(signal))
+    return list(signal)  
 
 def get_toe_tapping_nf(landmarks_list):
     values = []
