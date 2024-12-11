@@ -129,7 +129,6 @@ sphinxcontrib-qthelp==1.0.7
 sphinxcontrib-serializinghtml==1.1.10
 sqlparse==0.4.4
 stringcase==1.2.0
-super-gradients==3.6.1
 svglib==1.5.1
 sympy==1.12
 tensorboard==2.16.2

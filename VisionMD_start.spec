@@ -8,7 +8,7 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=[('templates', 'templates'), ('static', 'static'),
-        ('backend', 'backend'), ('app/models', 'app/models'), ('app/analysis/models','app/analysis/models')] + collect_data_files('ultralytics') + collect_data_files('super-gradients'),
+        ('backend', 'backend'), ('app/models', 'app/models'), ('app/analysis/models','app/analysis/models')] + collect_data_files('ultralytics'),
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

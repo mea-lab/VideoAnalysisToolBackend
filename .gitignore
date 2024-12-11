@@ -9,6 +9,8 @@
 /app/analysis/models/yolo_nas_pose_l_coco_pose.pth
 /dist
 /build
+/distCopy
+/buildCopy
 
 
 
