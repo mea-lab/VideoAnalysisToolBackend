@@ -5,7 +5,7 @@ import cv2
 
 import app.analysis.constants.mp_handlandmarks as MP_HAND_LANDMARKS
 import app.analysis.constants.mp_landmarks as MP_LANDMARKS
-import app.analysis.constants.yolo_landmarks as YOLO_LANDMARKS
+# import app.analysis.constants.yolo_landmarks as YOLO_LANDMARKS
 
 from mediapipe.framework.formats import landmark_pb2
 
