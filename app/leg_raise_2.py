@@ -583,11 +583,12 @@ def updateLandMarks(inputJson):
     fps = inputJson['fps']
     start_time =  inputJson['start_time'] 
     end_time =  inputJson['end_time']
+    all_landmarks = inputJson['alllandmarks']
     normalization_factor = 1
     if 'normalization_factor' in inputJson:
         normalization_factor = inputJson['normalization_factor']
 
-    return get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time)
+    return get_analysis_output(task_name, display_landmarks, normalization_factor, fps, start_time, end_time,all_landmarks)
 
 #     landmarks_signal = []
 #
