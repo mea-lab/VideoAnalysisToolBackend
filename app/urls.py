@@ -1,10 +1,9 @@
 from django.urls import path
-from app.views import get_video_data, leg_raise_task, updatePlotData, update_landmarks
+from .views import get_video_data, task_analysis, updatePlotData, update_landmarks
 
 urlpatterns = [
     path('video/', get_video_data),
-    path('leg_raise/', leg_raise_task),
+    path('task_analysis/', task_analysis),
     path('update_plot/', updatePlotData),
-    path('update_landmarks/', update_landmarks),
-    path('toe_tap/',leg_raise_task)
+    path('update_landmarks/', update_landmarks)
 ]

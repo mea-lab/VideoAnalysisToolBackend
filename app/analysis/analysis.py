@@ -4,8 +4,7 @@ import numpy as np
 import cv2
 from app.analysis.util import filter_signal, get_output
 from app.analysis.detector import get_detector
-from app.analysis.task_analysis import get_essential_landmarks, get_signal, get_normalisation_factor, \
-    get_display_landmarks
+from app.analysis.task_analysis import get_essential_landmarks, get_signal, get_normalisation_factor, get_display_landmarks
 import scipy.signal as signal
 
 
