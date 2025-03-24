@@ -50,7 +50,6 @@ def YOLOTracker(filePath, modelPath, device='cpu'):
             else:
                 frameResults = {'frameNumber': frameNumber, 'data': data}
                 boundingBoxes.append(frameResults)
-
         else:
             # Break the loop if the end of the video is reached
             break

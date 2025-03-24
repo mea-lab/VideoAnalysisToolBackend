@@ -3,13 +3,11 @@
 ## Introduction
 This repository contains the BackEnd of VisionMD software, a tool used for quantificaition of motor symtoms from videos. 
 
-To run this repository, you also need to download the [FrontEnd](https://github.com/mea-lab/VideoAnalysisToolFrontend), which is also available in github. 
+This repository contains a static version of the FrontEnd, so no changes can be made to the front end using this branch. If you want to modify the FrontEnd and BackEnd, please review the [main branch](https://github.com/mea-lab/VideoAnalysisToolBackend/tree/main) 
 
-Running the BackEnd and front end toguether allows you to modify both components to fit your needs. 
 
 ## Stand alone application
 
-If you only want to run the softare without modifying it, please visit the [dev branch](https://github.com/mea-lab/VideoAnalysisToolBackend/tree/dev). Instructions to download and run a stand alone application are avaliable there. 
 
 The stand alone application is only available for Window and MacOS. 
 
@@ -46,7 +44,8 @@ Start the server using the following command:
 python manage.py runserver
 ```
 
-Server runs on port 8080 
+Now, open Google Chrome and type in the URL bar ```http://127.0.0.1:8000/```
+The application will open
 
 To terminate the server, press ```Control``` + ```C```
 
@@ -82,16 +81,15 @@ Start the server using the following command:
 python manage.py runserver
 ```
 
-Server runs on port 8080 
-
+Now, open Google Chrome and type in the URL bar ```http://127.0.0.1:8000/```
+The application will open
 
 To terminate the server, press ```Control``` + ```C```
 </details>
 
 
 
-Now go to download the [FrontEnd](https://github.com/mea-lab/VideoAnalysisToolFrontend) and follow the step described there to run the local sever. 
-
+Note that this application has only been tested with Google Chrome. Other web browsers might produce unexpected results. 
 
 # Running the Backend with Docker Compose
 
