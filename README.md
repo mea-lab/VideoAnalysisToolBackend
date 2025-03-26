@@ -1,7 +1,7 @@
 # VisionMD_Backend
 
 ## Introduction
-This repository contains the BackEnd of VisionMD software, a tool used for quantificaition of motor symtoms from videos. 
+This repository contains the BackEnd of VisionMD software, a tool used for quantificaition of motor symptoms from videos. 
 
 This repository contains a static version of the FrontEnd, so no changes can be made to the front end using this branch. If you want to modify the FrontEnd and BackEnd, please review the [main branch](https://github.com/mea-lab/VideoAnalysisToolBackend/tree/main) 
 
