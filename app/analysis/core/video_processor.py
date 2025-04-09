@@ -5,8 +5,7 @@ import cv2
 
 from ..tasks import get_task_instance
 from ..detectors import get_detector
-from ..utils.geometry import increase_bounding_box
-from .analysis_output import build_analysis_output
+from .signal_processor import SignalAnalyzer
 
 class VideoProcessor:
     """
@@ -24,7 +23,23 @@ class VideoProcessor:
         # 2) Expand bounding box by 25%
         video_width = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
         video_height = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        bounding_box = increase_bounding_box(bounding_box, video_width, video_height)
+
+        # Calculate new x and y coordinates
+        new_x = int(max(0, bounding_box['x'] - bounding_box['width'] * 0.125))
+        new_y = int(max(0, bounding_box['y'] - bounding_box['height'] * 0.125))
+        
+        # Calculate new width and height ensuring they don't exceed video boundaries
+        new_width = int(min(video_width - new_x, bounding_box['width'] * 1.25))
+        new_height = int(min(video_height - new_y, bounding_box['height'] * 1.25))
+        
+        # Update the bounding box with the new values
+        bounding_box = {
+            'x': new_x,
+            'y': new_y,
+            'width': new_width,
+            'height': new_height
+        }
+        
 
         # 3) Determine start and end frames based on times
         fps = video.get(cv2.CAP_PROP_FPS)
@@ -70,8 +85,21 @@ class VideoProcessor:
 
         video.release()
 
-        # 7) Build final analysis output (signals, peaks, stats, etc.)
-        return build_analysis_output(
-            task, essential_landmarks, all_landmarks,
-            fps, start_time, end_time
+        display_landmarks = task.get_display_landmarks(essential_landmarks)
+        normalization_factor = task.get_normalization_factor(essential_landmarks)
+
+        analyzer = SignalAnalyzer()
+        output = analyzer.analyze(
+            task=task,
+            display_landmarks=display_landmarks,
+            normalization_factor=normalization_factor,
+            fps=fps,
+            start_time=start_time,
+            end_time=end_time
         )
+
+        # Attach raw landmarks to that final dictionary
+        output["landMarks"] = display_landmarks
+        output["allLandMarks"] = all_landmarks
+        output["normalization_factor"] = normalization_factor
+        return output
