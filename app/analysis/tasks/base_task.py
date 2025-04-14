@@ -1,104 +1,197 @@
 # tasks/base_task.py
 
+import cv2
+import mediapipe as mp
+import numpy as np
+import math
+import os, uuid, time, json, traceback
+from django.core.files.storage import FileSystemStorage
 from abc import ABC, abstractmethod
 
 class BaseTask(ABC):
     """
     Base class for all tasks (hand movement, finger tap, leg agility, toe tapping, etc.)
-    Each concrete subclass must implement these abstract methods
-    for retrieving & processing landmarks.
+    Each concrete subclass must implement these abstract methods for retrieving
+    & processing landmarks.
     """
 
+    # ------------------------------------------------------------------
+    # --- START: Abstract properties to be implemented by subclasses ---
+    # ------------------------------------------------------------------
+    @property
     @abstractmethod
-    def get_essential_landmarks(self, frame, frame_idx, bounding_box, detector, fps):
+    def LANDMARKS(self):
         """
-        Extract the *minimal required* landmarks that define the movement
-        we want to analyze (e.g. just the wrist + fingertip for finger taps).
+        Should be a dictionary where each landmark
+        constant (e.g., WRIST, THUMB_TIP) maps to its corresponding index.
+        """
+        pass
+
+
+    @property
+    @abstractmethod
+    def original_bounding_box(self):
+        pass
+
+
+    @property
+    @abstractmethod
+    def enlarged_bounding_box(self):
+        pass
+
+
+    @property
+    @abstractmethod
+    def video(self):
+        pass
+
+    
+    @property
+    @abstractmethod
+    def fps(self):
+        pass
+
+    @property
+    @abstractmethod
+    def start_time(self):
+        pass
+    
+
+    @property
+    @abstractmethod
+    def start_frame_idx(self):
+        pass
+
+
+    @property
+    @abstractmethod
+    def end_time(self):
+        pass
+
+
+    @property
+    @abstractmethod
+    def end_frame_idx(self):
+        pass
+    # ----------------------------------------------------------------
+    # --- END: Abstract properties to be implemented by subclasses ---
+    # ----------------------------------------------------------------
+
+
+
+
+
+    # ---------------------------------------------------------------
+    # --- START: Abstract methods to be implemented by subclasses ---
+    # ---------------------------------------------------------------
+    @abstractmethod
+    def api_response(self, request):
+        """
+        Function that handles the api response for each task
+        """
+        pass
+
+    
+    @abstractmethod
+    def prepare_video_parameters(self, request):
+        """
+        Prepares video parameters from the HTTP request:
+         - Parses JSON for bounding box and time codes.
+         - Saves the uploaded video file.
+         - Computes the expanded bounding box.
+         - Determines FPS and start/end frame indices.
+        Returns a dictionary of parameters.
+        MUST DEFINE ALL ABSTRACT PROPERTIES. 
+        """
+        pass
+
+
+    @abstractmethod 
+    def get_detector(self) -> object:
+        """
+        Getter for the detector used by the task.
+
+        Returns an instance of the detector using the detectors classes
+        """
+        pass
+
+
+    @abstractmethod
+    def get_signal_analyzer(self) -> object:
+        """
+        Getter for the signal analyzer used by the task
+
+        Returns an instance of the signal analyze using the analyzer classes
+        """
+        pass
+
+
+    @abstractmethod
+    def calculate_signal(self, essential_landmarks) -> list:
+        """
+        Given a set of display landmarks (one list per frame), return the raw 1D
+        signal array.
+        """
+        pass
+
+
+    @abstractmethod
+    def extract_landmarks(self, detector) -> tuple:
+        """
+        Process video frames between start_frame and end_frame and extract hand landmarks 
+        for the left hand from each frame.
         
-        Parameters:
-        -----------
-        frame : np.ndarray
-            The current video frame (e.g. from OpenCV).
-        frame_idx : int
-            The index of the current frame (relative to the full video).
-        bounding_box : dict
-            A dictionary with keys {x, y, width, height} for region-of-interest.
-        detector : object
-            An already-initialized detector (e.g. Mediapipe or YOLO).
-        fps : float
-            The video’s frames-per-second, used in time-based logic.
-
         Returns:
-        --------
-        (essential_landmarks, all_landmarks) : (list, list)
-            essential_landmarks: The minimal set of key points (e.g. [index_tip, wrist]).
-            all_landmarks: Possibly the full set of detected landmarks for debugging or reference.
+            tuple: (essential_landmarks, all_landmarks)
+            - essential_landmarks: a list of lists where each inner list contains the key landmark coordinates for that frame.
+            - all_landmarks: a list of lists containing all the landmark coordinates for that frame.
         """
         pass
+
 
     @abstractmethod
-    def get_signal(self, display_landmarks):
+    def calculate_normalization_factor(self, essential_landmarks) -> float:
         """
-        Given a “display” set of landmarks (one list per frame),
-        return the raw 1D signal array we want to run peak-detection on.
-
-        For example:
-          - Hand movement: average finger-to-wrist distance
-          - Finger tap: distance between thumb tip & index tip
-          - Leg agility: difference between shoulder & knee positions
-          - Toe tapping: difference between shoulder & foot positions
-
-        Parameters:
-        -----------
-        display_landmarks : list of lists
-            A per-frame list of (x, y) coordinates.
-
-        Returns:
-        --------
-        signal : list of floats
-            The 1D signal, one value per frame.
+        Return a caluclated scalar factor used to normalize the raw 1D signal.
         """
         pass
+    # -------------------------------------------------------------
+    # --- END: Abstract methods to be implemented by subclasses ---
+    # -------------------------------------------------------------
 
-    @abstractmethod
-    def get_display_landmarks(self, all_essential_landmarks):
+
+
+
+
+    # --------------------------------------------------
+    # --- START: Utility functions as static methods ---
+    # --------------------------------------------------
+    @staticmethod
+    def get_landmark_coords(landmark, enlarged_coords):
         """
-        Possibly transform or reduce the essential landmarks for final display.
-
-        For example, you might:
-          - Average the shoulder position across frames to reduce jitter
-          - Only keep [thumb, index finger] out of a larger set
-          - Return all the essential landmarks if no special processing is needed
-
-        Parameters:
-        -----------
-        all_essential_landmarks : list of lists
-            Each sublist represents the essential landmarks for that frame.
-
-        Returns:
-        --------
-        display_landmarks : list of lists
-            The "cleaned" or "final" set of landmarks to be displayed or used by get_signal.
+        Computes the (x, y) coordinates of a given landmark relative to the provided bounds.
         """
-        pass
+        x1, y1, x2, y2 = enlarged_coords
+        return [
+            landmark.x * (x2 - x1),
+            landmark.y * (y2 - y1)
+        ]
 
-    @abstractmethod
-    def get_normalization_factor(self, all_essential_landmarks):
+    @staticmethod
+    def get_all_landmarks_coord(landmarks, enlarged_coords):
         """
-        Return a scaling factor to normalize the raw 1D signal (if needed).
-
-        Examples might be:
-          - The maximum finger-to-wrist distance across all frames
-          - The average distance between the shoulder & hip for leg tasks
-
-        Parameters:
-        -----------
-        all_essential_landmarks : list of lists
-            Each sublist is the essential landmarks for that frame.
-
-        Returns:
-        --------
-        factor : float
-            A scalar used to normalize the signal.
+        Processes a list of landmarks and returns their (x, y, z) coordinates relative
+        to the provided bounds.
         """
-        pass
+        x1, y1, x2, y2 = enlarged_coords
+        coords = []
+        for lm in landmarks:
+            coords.append([
+                lm.x * (x2 - x1),
+                lm.y * (y2 - y1),
+                lm.z
+            ])
+        return coords
+    # ------------------------------------------------
+    # --- END: Utility functions as static methods ---
+    # ------------------------------------------------

@@ -16,7 +16,7 @@ def get_video_data(request):
     video = request.FILES['video']
     APP_ROOT = os.path.dirname(os.path.abspath(__file__))
     file_name = str(uuid.uuid4().hex[:15].upper()) + ".mp4"
-    folder_path = os.path.join(APP_ROOT, '../uploads')
+    folder_path = os.path.join(APP_ROOT, '../analysis/video_uploads')
     file_path = os.path.join(folder_path, file_name)
     FileSystemStorage(folder_path).save(file_name, video)
 
@@ -26,7 +26,7 @@ def get_video_data(request):
 
         # 2) Build path to YOLO model
         current_dir = os.path.dirname(__file__)
-        pathtomodel = os.path.join(current_dir, '../models/yolov8n.pt')
+        pathtomodel = os.path.join(current_dir, '../analysis/models/yolov8n.pt')
 
         # 3) Run YOLO-based tracker
         result = yolo_tracker(file_path, pathtomodel, device='')

@@ -1,9 +1,14 @@
 from django.urls import path
-from .views import get_video_data, task_analysis, updatePlotData, update_landmarks
+from app.views.get_video_data import get_video_data
+from app.views.update_plot_data import updatePlotData
+from app.views.create_task_views import generate_task_urlpatterns
+
 
 urlpatterns = [
     path('video/', get_video_data),
-    path('task_analysis/', task_analysis),
     path('update_plot/', updatePlotData),
-    path('update_landmarks/', update_landmarks)
+    # path('task_analysis/', task_analysis),
+    # path('update_landmarks/', update_landmarks)
 ]
+
+urlpatterns += generate_task_urlpatterns()

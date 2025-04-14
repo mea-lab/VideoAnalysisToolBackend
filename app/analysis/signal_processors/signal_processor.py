@@ -13,7 +13,7 @@ class SignalAnalyzer:
       - computing cycle stats
     """
 
-    def analyze(self, task, display_landmarks, normalization_factor, fps, start_time, end_time):
+    def analyze(self, raw_signal, normalization_factor, start_time, end_time):
         """
         1) get raw signal from the task
         2) normalize & upsample
@@ -22,7 +22,6 @@ class SignalAnalyzer:
         5) return dict with old keys so front-end remains compatible
         """
         # 1) get raw signal
-        raw_signal = task.get_signal(display_landmarks)
         signal_array = np.array(raw_signal) / (normalization_factor if normalization_factor else 1.0)
         duration = end_time - start_time
 
@@ -177,12 +176,10 @@ class SignalAnalyzer:
                 "StdAmplitude": stdAmplitude,
                 "MeanSpeed": meanSpeed,
                 "StdSpeed": stdSpeed,
-                # placeholders:
                 "amplitudeDecay": amplitudeDecay,
                 "velocityDecay": velocityDecay,
                 "rateDecay": rateDecay,
                 "rate": rate,
-                # etc. add more if front-end expects them
             }
         }
 

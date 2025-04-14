@@ -6,8 +6,6 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 
 def create_mediapipe_hand_detector():
-    # put the .task file in your models/ folder
-    # see your original code, just rename references
     running_mode = vision.RunningMode
     current_dir = os.path.dirname(__file__)
     base_options = python.BaseOptions(

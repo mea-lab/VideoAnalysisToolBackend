@@ -10,8 +10,7 @@ os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
 
 def create_yolo_detector(model_path="yolov8s.pt", device='cpu'):
     """
-    Example function that just creates a YOLO object 
-    (handy if you want to do single-frame detect).
+    Example function that creates a YOLO object 
     """
     # Choose device
     device = 'cuda' if torch.cuda.is_available() else device
