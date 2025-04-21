@@ -74,13 +74,25 @@ class FingerTapLeftTask(BaseTask):
         Entry point for processing the left finger tap task.
         """
         try:
+            # 1) Process video and define all abstract class parameters
             self.prepare_video_parameters(request)
+
+            # 2) Get detector
             detector = self.get_detector()
+
+            # 3) Get analyzer
             signal_analyzer = self.get_signal_analyzer()
+
+            # 4) Extract landmarks using the defined detector
             essential_landmarks, all_landmarks = self.extract_landmarks(detector)
+            
+            # 5) Calculate the signal using the land marks
             normalization_factor = self.calculate_normalization_factor(essential_landmarks)
+
+            # 6) Calculate the  normalization factor using the land marks
             raw_signal = self.calculate_signal(essential_landmarks)
             
+            # 7) Get output from the signal analyzer
             output = signal_analyzer.analyze(
                 normalization_factor=normalization_factor,
                 raw_signal=raw_signal,
@@ -88,6 +100,7 @@ class FingerTapLeftTask(BaseTask):
                 end_time=self.end_time
             )
             
+            # 6) Structure output
             output["landMarks"] = essential_landmarks
             output["allLandMarks"] = all_landmarks
             output["normalization_factor"] = normalization_factor
