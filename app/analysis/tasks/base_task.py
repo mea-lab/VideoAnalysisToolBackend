@@ -100,7 +100,7 @@ class BaseTask(ABC):
          - Saves the uploaded video file.
          - Computes the expanded bounding box.
          - Determines FPS and start/end frame indices.
-        Returns a dictionary of parameters.
+        Returns a dictionary of parameters. 
         MUST DEFINE ALL ABSTRACT PROPERTIES. 
         """
         pass
