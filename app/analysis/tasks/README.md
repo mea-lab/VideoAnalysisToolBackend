@@ -549,10 +549,42 @@ class HeadNoddingTask(BaseTask):
 
 ## Testing Your Task
 
-After creating your task:
+Once you’ve added your new `<your_task_name>.py` file under **`analysis/tasks/`**, the system will automatically:
 
-1. Make sure to register it in `__init__.py` so it's discoverable
-2. Implement a corresponding API endpoint in your views
-3. Test it by sending a video with the appropriate parameters
+- **Discover** it (no edits to `__init__.py` required)  
+- **Generate** a POST endpoint at  
+  ```
+  /api/tasks/<your_task_name>/
+  ```
 
-Your task is now ready to use in the video analysis system!
+### How to test
+
+1. **Start (or restart)** your Django server:  
+   ```bash
+   python manage.py runserver
+   ```
+2. **POST** to your task’s URL  
+   ```
+   POST http://<host>:<port>/api/tasks/<your_task_name>/
+   ```
+   - **Form field** `"json_data"` (stringified JSON):  
+     ```json
+     {
+       "boundingBox": { "x": 120, "y": 80, "width": 400, "height": 600 },
+       "start_time": 0.0,
+       "end_time": 8.0
+     }
+     ```
+   - **Form field** `"video"`: your `.mp4` file
+3. **Inspect** the JSON response in your client—e.g.:  
+   ```json
+   {
+     "peaks": [...],
+     "frequency_hz": 1.6,
+     "amplitude_norm": 0.83,
+     "landMarks": [[...], ...],
+     "normalization_factor": 212.5
+   }
+   ```
+
+No manual URL or registration steps are needed—just drop in the file, restart, and your task is live!
