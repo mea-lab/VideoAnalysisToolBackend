@@ -9,7 +9,6 @@ class BaseDetector(ABC):
     # ------------------------------------------------------------------
     # --- START: Abstract properties to be implemented by subclasses ---
     # ------------------------------------------------------------------
-    @property
     @abstractmethod
     def get_detector() -> object:
         """

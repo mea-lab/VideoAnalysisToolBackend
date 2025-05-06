@@ -9,7 +9,6 @@ class HandDetector(BaseDetector):
     Detector for hand landmarks using MediaPipe's HandLandmarker.
     """
 
-    @property
     def get_detector(self) -> vision.HandLandmarker:
         running_mode = vision.RunningMode
         current_dir = os.path.dirname(__file__)

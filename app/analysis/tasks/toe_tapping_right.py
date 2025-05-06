@@ -6,7 +6,7 @@ import os, uuid, time, json, traceback
 from django.core.files.storage import FileSystemStorage
 
 from .base_task import BaseTask
-from app.analysis.detectors.mediapipe_detectors import create_mediapipe_pose_heavy
+from app.analysis.detectors.mp_poseheavy_detector import PoseHeavyDetector
 from app.analysis.signal_processors.peakfinder_signal_processor import PeakfinderSignalProcessor
 
 class RightToeTappingTask(BaseTask):
@@ -150,7 +150,7 @@ class RightToeTappingTask(BaseTask):
         }
 
     def get_detector(self):
-        return create_mediapipe_pose_heavy()
+        return PoseHeavyDetector()
 
     def get_signal_analyzer(self):
         return PeakfinderSignalProcessor()

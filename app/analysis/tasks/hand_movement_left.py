@@ -11,7 +11,7 @@ from django.core.files.storage import FileSystemStorage
 import os, uuid, time, json, traceback
 
 from .base_task import BaseTask
-from app.analysis.detectors.mediapipe_detectors import create_mediapipe_hand_detector
+from app.analysis.detectors.mp_hand_detector import HandDetector
 from app.analysis.signal_processors.peakfinder_signal_processor import PeakfinderSignalProcessor
 
 class HandMovementLeftTask(BaseTask):
@@ -187,7 +187,7 @@ class HandMovementLeftTask(BaseTask):
         Returns:
             - An object of the detector class
         """
-        return create_mediapipe_hand_detector()
+        return HandDetector().get_detector()
     
 
 
