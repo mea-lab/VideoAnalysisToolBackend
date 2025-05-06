@@ -2,135 +2,169 @@
 
 import numpy as np
 import scipy.signal as signal
-import scipy.interpolate as sp_interp
+import scipy.signal as signal
+import scipy.interpolate as interpolate
+from app.analysis.signal_processors.base_signal_processor import BaseSignalProcessor
 
-class SignalAnalyzer:
+class PeakfinderSignalProcessor(BaseSignalProcessor):
     """
-    Handles signal processing, including:
-      - optional filtering
-      - upsampling to 60 FPS
-      - peak finding
-      - computing cycle stats
+    Handles signal processing:
+      - normalization & upsampling
+      - embedded peak finding
+      - computation of all cycle metrics
+      - returns a dict matching your required jsonFinal schema
     """
 
     def analyze(self, raw_signal, normalization_factor, start_time, end_time):
-        """
-        1) get raw signal from the task
-        2) normalize & upsample
-        3) run peakFinder
-        4) compute final stats (linePlot, velocityPlot, peaks, valleys, radar, etc.)
-        5) return dict with old keys so front-end remains compatible
-        """
-        # 1) get raw signal
-        signal_array = np.array(raw_signal) / (normalization_factor if normalization_factor else 1.0)
-        duration = end_time - start_time
+        # 1) Normalize
+        signal_array = np.array(raw_signal, dtype=float)
+        norm = normalization_factor if normalization_factor else 1.0
+        signal_array /= norm
 
-        # 2) upsample to 60 FPS
-        upsample_fps = 60
-        n_samples = int(duration * upsample_fps)
+        # 2) Upsample to 60 Hz
+        up_fps = 60
+        duration = end_time - start_time
+        n_samples = int(duration * up_fps)
         if n_samples < 2:
             n_samples = len(signal_array)
         up_sample_signal = signal.resample(signal_array, n_samples)
 
-        # 3) run peak finder
-        distance, velocity, peaks = self.run_peak_finding(up_sample_signal)
+        # 3) Peak finding
+        distance, velocity, peaks, pos_vel, neg_vel = peakFinder(
+            up_sample_signal,
+            fs=up_fps,
+            minDistance=3,
+            cutOffFrequency=7.5,
+            prct=0.05
+        )
 
-        # Build time array for the distance & velocity
-        line_time = []
-        sizeOfDist = len(distance)
-        for i in range(sizeOfDist):
-            t = (i / sizeOfDist) * duration + start_time
-            line_time.append(t)
+        # 4) Build time array
+        size = len(distance)
+        line_time = [(i/size)*duration + start_time for i in range(size)]
 
-        # 4) Reproduce old keys: linePlot, velocityPlot, rawData, peaks, valleys, etc.
-
-        # Prepare arrays for storing peak/valley Y-values + times
+        # 5) Extract peaks & valleys
         line_peaks = []
         line_peaks_time = []
-        line_valleys = []        # used if you want to store 'middle' valley
+        line_valleys = []
         line_valleys_time = []
         line_valleys_start = []
         line_valleys_start_time = []
         line_valleys_end = []
         line_valleys_end_time = []
 
-        # For each peak, gather the distance values at openingValleyIndex, peakIndex, closingValleyIndex
         for pk in peaks:
-            # pk structure from your 'peakFinder': 
-            # pk['peakIndex'], pk['openingValleyIndex'], pk['closingValleyIndex'], etc.
-            pidx = pk['peakIndex']
-            open_val_idx = pk['openingValleyIndex']
-            close_val_idx = pk['closingValleyIndex']
+            p   = pk['peakIndex']
+            vs  = pk['openingValleyIndex']
+            ve  = pk['closingValleyIndex']
 
-            # Store peak data
-            line_peaks.append(distance[pidx])
-            line_peaks_time.append((pidx / sizeOfDist) * duration + start_time)
+            # peak
+            line_peaks.append(distance[p])
+            line_peaks_time.append((p/size)*duration + start_time)
+            # “middle” valley (same as opening)
+            line_valleys.append(distance[vs])
+            line_valleys_time.append((vs/size)*duration + start_time)
+            # opening valley
+            line_valleys_start.append(distance[vs])
+            line_valleys_start_time.append((vs/size)*duration + start_time)
+            # closing valley
+            line_valleys_end.append(distance[ve])
+            line_valleys_end_time.append((ve/size)*duration + start_time)
 
-            # Opening valley
-            line_valleys_start.append(distance[open_val_idx])
-            line_valleys_start_time.append((open_val_idx / sizeOfDist) * duration + start_time)
-
-            # Closing valley
-            line_valleys_end.append(distance[close_val_idx])
-            line_valleys_end_time.append((close_val_idx / sizeOfDist) * duration + start_time)
-
-            # If you want a 'middle' valley concept, you can add it here or skip
-            # line_valleys.append(...)
-            # line_valleys_time.append(...)
-
-        # 5) Example calculations for amplitude, velocity, etc. 
-        #    (This is the style from your old get_output(...) code.)
-
+        # 6) Compute amplitudes, speeds, RMS, durations
         amplitude = []
         speed = []
-        peakTime = []
-        for i, pk in enumerate(peaks):
-            open_val = pk['openingValleyIndex']
-            close_val = pk['closingValleyIndex']
-            peak_idx = pk['peakIndex']
+        rms_vel = []
+        avg_open_spd = []
+        avg_close_spd = []
+        cycle_dur = []
+        peak_times = []
 
-            # baseline between opening & closing valley
-            x1 = open_val
-            x2 = close_val
-            y1 = distance[x1]
-            y2 = distance[x2]
-            y_peak = distance[peak_idx]
+        for pk in peaks:
+            vs = pk['openingValleyIndex']
+            ve = pk['closingValleyIndex']
+            p  = pk['peakIndex']
 
-            f = sp_interp.interp1d([x1, x2], [y1, y2], fill_value="extrapolate")
-            baseline_at_peak = f(peak_idx)
+            y_vs = distance[vs]
+            y_ve = distance[ve]
+            y_p  = distance[p]
 
-            amp = y_peak - baseline_at_peak
+            # baseline at peak
+            f_base = interpolate.interp1d([vs, ve], [y_vs, y_ve], fill_value="extrapolate")
+            base_at_p = f_base(p)
+
+            amp = y_p - base_at_p
             amplitude.append(amp)
 
-            cycle_frames = (close_val - open_val)
-            cycle_time = cycle_frames * (1 / upsample_fps)
-            if cycle_time <= 0:
-                cycle_time = 1e-6
+            # RMS velocity over cycle
+            vel_seg = velocity[vs:ve] if ve>vs else np.array([])
+            rms = np.sqrt(np.mean(vel_seg**2)) if vel_seg.size else 0.0
+            rms_vel.append(rms)
 
-            spd = amp / cycle_time
-            speed.append(spd)
+            # cycle duration in seconds
+            cd = (ve - vs) / up_fps
+            cycle_dur.append(cd if cd>0 else 1e-6)
 
-            # convert peak index to absolute time
-            ptime = peak_idx * (1 / upsample_fps)
-            peakTime.append(ptime)
+            # overall speed
+            speed.append(amp / cd if cd>0 else 0.0)
 
-        # Stats for radarTable example
-        meanAmplitude = np.mean(amplitude) if amplitude else 0
-        stdAmplitude  = np.std(amplitude)  if amplitude else 0
-        meanSpeed     = np.mean(speed)     if speed else 0
-        stdSpeed      = np.std(speed)      if speed else 0
+            # opening speed
+            to = (p - vs) / up_fps
+            avg_open_spd.append(amp / to if to>0 else 0.0)
 
-        # dummy computations for demonstration
-        amplitudeDecay = 1
-        velocityDecay  = 1
-        rateDecay      = 1
+            # closing speed
+            tc = (ve - p) / up_fps
+            avg_close_spd.append(amp / tc if tc>0 else 0.0)
 
-        # e.g. number of peaks / total time
-        total_time = duration if duration > 0 else 1
-        rate = len(peaks) / total_time if total_time else 0
+            # record peak time (relative seconds)
+            peak_times.append(p / up_fps)
 
-        # 6) Build final dictionary 
-        result = {
+        # 7) Statistics for radarTable
+        def mean_std(arr):
+            return (float(np.mean(arr)), float(np.std(arr))) if arr else (0.0, 0.0)
+
+        meanAmp,  stdAmp  = mean_std(amplitude)
+        meanSpd,  stdSpd  = mean_std(speed)
+        meanRMS,  stdRMS  = mean_std(rms_vel)
+        meanO,    stdO    = mean_std(avg_open_spd)
+        meanC,    stdC    = mean_std(avg_close_spd)
+        meanCd,   stdCd   = mean_std(cycle_dur)
+
+        # range of cycle durations (max diff minus min diff)
+        diffs = np.diff(peak_times)
+        rangeCd = float(np.max(diffs) - np.min(diffs)) if diffs.size else 0.0
+
+        # rate = cycles / (time from first opening to last closing)
+        if peaks:
+            span_frames = peaks[-1]['closingValleyIndex'] - peaks[0]['openingValleyIndex']
+            span_s = span_frames / up_fps if span_frames>0 else 1e-6
+            rate = len(peaks) / span_s
+        else:
+            rate = 0.0
+
+        # decay metrics (early vs. late third)
+        n3 = len(amplitude) // 3
+        if n3 > 0:
+            amp_dec = np.mean(amplitude[:n3]) / np.mean(amplitude[-n3:]) if np.mean(amplitude[-n3:]) else 1.0
+            vel_dec = np.mean(speed[:n3])     / np.mean(speed[-n3:])     if np.mean(speed[-n3:])     else 1.0
+
+            early = peaks[:n3]
+            late  = peaks[-n3:]
+            t_early = (early[-1]['closingValleyIndex'] - early[0]['openingValleyIndex'])/up_fps
+            t_late  = (late[-1]['closingValleyIndex']  - late[0]['openingValleyIndex']) /up_fps
+            rate_dec = ((len(early)/t_early)/(len(late)/t_late)) if t_early>0 and t_late>0 else 1.0
+        else:
+            amp_dec = vel_dec = rate_dec = 1.0
+
+        # coefficient of variation
+        cvAmp = stdAmp / meanAmp    if meanAmp else 0.0
+        cvSpd = stdSpd / meanSpd    if meanSpd else 0.0
+        cvCd  = stdCd  / meanCd     if meanCd  else 0.0
+        cvR   = stdRMS / meanRMS    if meanRMS else 0.0
+        cvO   = stdO   / meanO      if meanO   else 0.0
+        cvC   = stdC   / meanC      if meanC   else 0.0
+
+        # 8) Build final dict
+        jsonFinal = {
             "linePlot": {
                 "data": distance.tolist(),
                 "time": line_time
@@ -148,8 +182,7 @@ class SignalAnalyzer:
                 "time": line_peaks_time
             },
             "valleys": {
-                # If your old code didn't store a "middle" valley, you can keep empty or remove this key
-                "data": line_valleys,       
+                "data": line_valleys,
                 "time": line_valleys_time
             },
             "valleys_start": {
@@ -160,50 +193,40 @@ class SignalAnalyzer:
                 "data": line_valleys_end,
                 "time": line_valleys_end_time
             },
-            "radar": {
-                # replicate your old "radar" arrays if the front-end expects them
-                "A": [2.5, 3.8, 5.9, 4.2, 8.6, 4.9, 6.9, 9, 8.4, 7.3],
-                "B": [3.8, 7.1, 7.4, 5.9, 4.2, 3.1, 6.5, 6.4, 3, 7],
-                "labels": [
-                    "Mean Frequency", "Mean cycle amplitude", "CV cycle amplitude",
-                    "Mean cycle rms velocity","CV cycle rms velocity",
-                    "Mean cycle duration", "CV cycle duration", 
-                    "Range cycle duration","Amplitude decay","Velocity decay"
-                ]
-            },
             "radarTable": {
-                "MeanAmplitude": meanAmplitude,
-                "StdAmplitude": stdAmplitude,
-                "MeanSpeed": meanSpeed,
-                "StdSpeed": stdSpeed,
-                "amplitudeDecay": amplitudeDecay,
-                "velocityDecay": velocityDecay,
-                "rateDecay": rateDecay,
-                "rate": rate,
+                "MeanAmplitude":           meanAmp,
+                "StdAmplitude":            stdAmp,
+                "MeanSpeed":               meanSpd,
+                "StdSpeed":                stdSpd,
+                "MeanRMSVelocity":         meanRMS,
+                "StdRMSVelocity":          stdRMS,
+                "MeanOpeningSpeed":        meanO,
+                "stdOpeningSpeed":         stdO,
+                "meanClosingSpeed":        meanC,
+                "stdClosingSpeed":         stdC,
+                "meanCycleDuration":       meanCd,
+                "stdCycleDuration":        stdCd,
+                "rangeCycleDuration":      rangeCd,
+                "rate":                    rate,
+                "amplitudeDecay":          amp_dec,
+                "velocityDecay":           vel_dec,
+                "rateDecay":               rate_dec,
+                "cvAmplitude":             cvAmp,
+                "cvCycleDuration":         cvCd,
+                "cvSpeed":                 cvSpd,
+                "cvRMSVelocity":           cvR,
+                "cvOpeningSpeed":          cvO,
+                "cvClosingSpeed":          cvC
             }
         }
 
-        return result
-
-    def run_peak_finding(self, signal_array):
-        """
-        Does the actual peakFinding from your old code:
-        e.g. lowpass filter => velocity => positive/negative peaks => correctFullPeaks => ...
-        Returns (distance, velocity, list_of_peaks)
-        """
-        distance, velocity, peaks, _, _ = peakFinder(
-            signal_array,
-            fs=60,
-            minDistance=3,
-            cutOffFrequency=7.5,
-            prct=0.05
-        )
-        return distance, velocity, peaks
+        return jsonFinal
 
 
-# ---------------  Peak-Finding Functions ---------------
-import scipy.signal as signal
 
+# ---------------------------------------------------------------
+# -------------------- Peak Finder & Helpers --------------------
+# ---------------------------------------------------------------
 def compareNeighboursNegative(item1, item2, distance, minDistance=5):
     # case 1 -> item1 peak and item2 valley are too close
     if abs(item1['valleyIndex'] - item2['peakIndex']) < minDistance:

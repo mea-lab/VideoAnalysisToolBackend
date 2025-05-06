@@ -7,7 +7,7 @@ from django.core.files.storage import FileSystemStorage
 
 from .base_task import BaseTask
 from app.analysis.detectors.mediapipe_detectors import create_mediapipe_pose_heavy
-from app.analysis.signal_processors.signal_processor import SignalAnalyzer
+from app.analysis.signal_processors.peakfinder_signal_processor import PeakfinderSignalProcessor
 
 class LegAgilityLeftTask(BaseTask):
     """
@@ -152,7 +152,7 @@ class LegAgilityLeftTask(BaseTask):
         return create_mediapipe_pose_heavy()
 
     def get_signal_analyzer(self):
-        return SignalAnalyzer()
+        return PeakfinderSignalProcessor()
 
     def extract_landmarks(self, detector):
         """

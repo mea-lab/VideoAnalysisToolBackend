@@ -10,7 +10,7 @@ from django.core.files.storage import FileSystemStorage
 
 from .base_task import BaseTask
 from app.analysis.detectors.mediapipe_detectors import create_mediapipe_hand_detector
-from app.analysis.signal_processors.signal_processor import SignalAnalyzer
+from app.analysis.signal_processors.peakfinder_signal_processor import PeakfinderSignalProcessor
 
 class FingerTapLeftTask(BaseTask):
     """
@@ -189,7 +189,7 @@ class FingerTapLeftTask(BaseTask):
         """
         Returns the signal analyzer.
         """
-        return SignalAnalyzer()
+        return PeakfinderSignalProcessor()
 
 
     def extract_landmarks(self, detector) -> tuple:
