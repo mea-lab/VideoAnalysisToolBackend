@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-class BaseSignalProcessor(ABC):
+class BaseSignalAnalyzer(ABC):
     """
-    Base signal processor for all signals (hand movement, finger tap, leg agility, toe tapping, etc.)
+    Base signal analyzer for all signals (hand movement, finger tap, leg agility, toe tapping, etc.)
     Each  subclass must implement these abstract methods for analyzing a signal
     """
 

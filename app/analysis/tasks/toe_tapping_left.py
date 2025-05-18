@@ -7,7 +7,7 @@ from django.core.files.storage import FileSystemStorage
 
 from .base_task import BaseTask
 from app.analysis.detectors.mp_poseheavy_detector import PoseHeavyDetector
-from app.analysis.signal_processors.peakfinder_signal_processor import PeakfinderSignalProcessor
+from app.analysis.signal_analyzers.peakfinder_signal_analyzer import PeakfinderSignalAnalyzer
 
 class ToeTappingLeftTask(BaseTask):
     """
@@ -156,10 +156,10 @@ class ToeTappingLeftTask(BaseTask):
         }
 
     def get_detector(self):
-        return PoseHeavyDetector()
+        return PoseHeavyDetector().get_detector()
 
     def get_signal_analyzer(self):
-        return PeakfinderSignalProcessor()
+        return PeakfinderSignalAnalyzer()
 
     def extract_landmarks(self, detector):
         """

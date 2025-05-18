@@ -4,9 +4,9 @@ import numpy as np
 import scipy.signal as signal
 import scipy.signal as signal
 import scipy.interpolate as interpolate
-from app.analysis.signal_processors.base_signal_processor import BaseSignalProcessor
+from app.analysis.signal_analyzers.base_signal_analyzer import BaseSignalAnalyzer
 
-class PeakfinderSignalProcessor(BaseSignalProcessor):
+class PeakfinderSignalAnalyzer(BaseSignalAnalyzer):
     """
     Handles signal processing:
       - normalization & upsampling

@@ -9,7 +9,6 @@ class PoseLandmarkerFullDetector(BaseDetector):
     Detector for pose landmarks (full model) using MediaPipe's PoseLandmarker.
     """
 
-    @property
     def get_detector(self) -> vision.PoseLandmarker:
         running_mode = vision.RunningMode
         current_dir = os.path.dirname(__file__)
